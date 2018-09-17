@@ -1,0 +1,30 @@
+{
+  "name": "floor12/yii2-backup",
+  "description": "Yii2 backup module",
+  "keywords": [
+    "yii2",
+    "extension",
+    "module",
+    "backup"
+  ],
+  "homepage": "https://github.com/dragonjet/yii2-module-backup",
+  "type": "yii2-extension",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "floor12",
+      "email": "primelifecoder@gmail.com",
+      "role": "Developer",
+      "homepage": "http://floor12.net"
+    }
+  ],
+  "minimum-stability": "stable",
+  "require": {
+    "yiisoft/yii2": "@dev"
+  },
+  "autoload": {
+    "psr-4": {
+      "floor12\\backup\\": "src"
+    }
+  }
+}
