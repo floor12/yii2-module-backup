@@ -20,7 +20,8 @@
   ],
   "minimum-stability": "stable",
   "require": {
-    "yiisoft/yii2": "@dev"
+    "yiisoft/yii2": "@dev",
+    "ifsnop/mysqldump-php":"2.*"
   },
   "autoload": {
     "psr-4": {

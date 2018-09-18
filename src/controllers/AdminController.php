@@ -8,8 +8,8 @@
 
 namespace floor12\backup\controllers;
 
-use floor12\editmodal\DeleteAction;
-use floor12\editmodal\EditModalAction;
+use floor12\backup\models\Backup;
+use floor12\backup\models\BackupFilter;
 use Yii;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
@@ -35,9 +35,26 @@ class AdminController extends Controller
                 'class' => VerbFilter::class,
                 'actions' => [
                     'delete' => ['delete'],
-                    'approve' => ['post'],
                 ],
             ],
         ];
+    }
+
+    public function actionIndex()
+    {
+        $model = new BackupFilter();
+        return $this->render('index', ['model' => $model]);
+    }
+
+    public function actionCreate()
+    {
+        $model = new Backup();
+        $model->type = 1;
+        $model->size = 1133312;
+        $model->config_name = 'Основная база';
+        $model->config_id = 1;
+        $model->filename = '234f2fsl2k.tgz';
+        $model->date = date("Y-m-d");
+        var_dump($model->save());
     }
 }
