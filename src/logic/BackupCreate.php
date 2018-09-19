@@ -11,9 +11,17 @@ namespace floor12\backup\logic;
 use floor12\backup\models\Backup;
 use floor12\backup\models\BackupStatus;
 use floor12\backup\models\BackupType;
+use Ifsnop\Mysqldump\Mysqldump;
 use Yii;
 use yii\base\InvalidConfigException;
 
+/**
+ * Class BackupCreate
+ * @package floor12\backup\logic
+ * @property Backup $_model
+ * @property array $_configs
+ * @property array $_config
+ */
 class BackupCreate
 {
 
@@ -21,6 +29,12 @@ class BackupCreate
     private $_currentConfig;
     private $_model;
 
+    /**
+     * BackupCreate constructor.
+     * @param string $config_id
+     * @throws InvalidConfigException
+     * @throws \ErrorException
+     */
     public function __construct(string $config_id)
     {
         $this->_configs = Yii::$app->getModule('backup')->configs;
@@ -40,22 +54,54 @@ class BackupCreate
 
     }
 
+    /** Основный метод, который запускает процесс
+     * @return bool
+     */
     public function run()
     {
         if ($this->_currentConfig['type'] == BackupType::DB)
-            $this->backupDb();
+            return $this->backupDatabase();
     }
 
-    private function backupDb()
+    /** Создаем экзеспляр бекапа в своей sqlite базе
+     * @return bool
+     */
+    private function backupDatabase()
     {
         $this->_model->date = date('Y-m-d H:i:s');
         $this->_model->status = BackupStatus::IN_PROCESS;
         $this->_model->type = $this->_currentConfig['type'];
         $this->_model->config_id = $this->_currentConfig['id'];
         $this->_model->config_name = $this->_currentConfig['title'];
-        $this->_model->filename = $this->createFileName();
-        $this->_model->size = 0;
+        $this->_model->filename = $this->createFileName() . Backup::EXT_TGZ;
         $this->_model->save();
+
+        $this->dumpDatabase($this->_model->getFullPath());
+        $this->_model->status = BackupStatus::DONE;
+        $this->_model->updateFileSize();
+        return $this->_model->save();
+    }
+
+    /**
+     * @param $pathFull
+     */
+    private function dumpDatabase($pathFull)
+    {
+        $connection = Yii::$app->{$this->_currentConfig['connection']};
+
+        try {
+            $dump = new Mysqldump(
+                $connection->dsn,
+                $connection->username,
+                $connection->password,
+                ['compress' => Mysqldump::GZIP]
+            );
+            $dump->start($pathFull);
+            if (Yii::$app->getModule('backup')->chmod)
+                chmod($pathFull, Yii::$app->getModule('backup')->chmod);
+        } catch (\Exception $e) {
+            echo 'mysqldump-php error: ' . $e->getMessage();
+        }
     }
 
     private function createFileName()

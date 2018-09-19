@@ -19,7 +19,8 @@ class BackupFilter extends Model
     public function dataProvider()
     {
         return new ActiveDataProvider([
-            'query' => Backup::find()
+            'query' => Backup::find(),
+            'sort' => ['defaultOrder' => ['date' => SORT_DESC]]
         ]);
     }
 }

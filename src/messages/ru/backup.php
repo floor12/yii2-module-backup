@@ -22,5 +22,8 @@ return [
     'Delete' => 'Удалить',
     'Restore' => 'Восстановить',
     'Download' => 'Скачать',
+    'Backup was successful restored.' => 'Бекап успешно восстановлен.',
+    'Are your realy want to restor thie backup?' => 'Вы уверены, что хотите восстановить этот бекап?',
+    'Backup was successful created.' => 'Бекап успешно создан.',
     '' => '',
 ];

@@ -24,6 +24,8 @@ class Module extends \yii\base\Module
     /** @var string */
     public $backupFolder = '@app/backups';
 
+    public $chmod;
+
     /** @inheritdoc */
     public $controllerNamespace = 'floor12\backup\controllers';
 

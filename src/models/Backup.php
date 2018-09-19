@@ -23,9 +23,13 @@ use yii\db\ActiveRecord;
  * @property string $config_name
  * @property string $date
  * @property string $filename
+ * @property string $fullPath
  */
 class Backup extends ActiveRecord
 {
+
+    const EXT_TGZ = '.gz';
+
     public static function getDb()
     {
         return Yii::$app->getModule('backup')->connection;
@@ -39,6 +43,9 @@ class Backup extends ActiveRecord
         return 'backup';
     }
 
+    /**
+     * @inheritdoc
+     */
     public function attributeLabels()
     {
         return [
@@ -52,4 +59,28 @@ class Backup extends ActiveRecord
         ];
     }
 
+    /** Гененрируем имя полноый путь к архиву на основании конфига и емения архива.
+     * @return string|void
+     */
+    public function getFullPath()
+    {
+        if (!$this->filename)
+            return;
+        return Yii::$app->getModule('backup')->backupRootPath . DIRECTORY_SEPARATOR . $this->filename;
+    }
+
+    /**
+     * Обновляем размер архива после его создания.
+     * @return void
+     */
+    public function updateFileSize()
+    {
+        $this->size = filesize($this->getFullPath());
+    }
+
+    public function afterDelete()
+    {
+        @unlink($this->getFullPath());
+        parent::afterDelete();
+    }
 }
