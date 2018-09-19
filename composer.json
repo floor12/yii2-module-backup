@@ -21,6 +21,7 @@
   "minimum-stability": "stable",
   "require": {
     "yiisoft/yii2": "@dev",
+    "yii2mod/yii2-enum": "^1.7",
     "ifsnop/mysqldump-php":"2.*"
   },
   "autoload": {
