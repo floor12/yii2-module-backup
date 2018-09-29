@@ -22,6 +22,8 @@ use yii\helpers\Html;
 use yii\web\View;
 use yii\widgets\Pjax;
 
+$this->title = Yii::t('app.f12.backup', 'Backups');
+
 BackupAdminAsset::register($this);
 
 $restoreConfirmText = Yii::t('app.f12.backup', 'Are your realy want to restor thie backup?');
