@@ -59,8 +59,51 @@ class BackupCreate
      */
     public function run()
     {
+        if (isset($this->_currentConfig['limit'])) {
+            $backups = Backup::find()
+                ->where(['config_id' => $this->_currentConfig['id']])
+                ->orderBy('date DESC')
+                ->offset($this->_currentConfig['limit'])
+                ->all();
+            if ($backups)
+                foreach ($backups as $backup)
+                    $backup->delete();
+        }
+
         if ($this->_currentConfig['type'] == BackupType::DB)
             return $this->backupDatabase();
+
+        if ($this->_currentConfig['type'] == BackupType::FILES)
+            return $this->backupFiles();
+    }
+
+    private function backupFiles()
+    {
+        $this->_model->date = date('Y-m-d H:i:s');
+        $this->_model->status = BackupStatus::IN_PROCESS;
+        $this->_model->type = $this->_currentConfig['type'];
+        $this->_model->config_id = $this->_currentConfig['id'];
+        $this->_model->config_name = $this->_currentConfig['title'];
+        $this->_model->filename = $this->createFileName() . Backup::EXT_ZIP;
+        $this->_model->save();
+
+        $this->dumpFiles($this->_model->getFullPath());
+        $this->_model->status = BackupStatus::DONE;
+        $this->_model->updateFileSize();
+        return $this->_model->save();
+    }
+
+
+    private function dumpFiles($pathFull)
+    {
+
+        $path = Yii::getAlias($this->_currentConfig['path']);
+
+        exec("cd {$path} && zip -r {$pathFull} *");
+
+        if (Yii::$app->getModule('backup')->chmod)
+            chmod($pathFull, Yii::$app->getModule('backup')->chmod);
+
     }
 
     /** Создаем экзеспляр бекапа в своей sqlite базе
@@ -104,6 +147,9 @@ class BackupCreate
         }
     }
 
+    /** Generate filename
+     * @return string
+     */
     private function createFileName()
     {
         return $this->_currentConfig['id'] . "_" . date("Y-m-d_H-i-s");

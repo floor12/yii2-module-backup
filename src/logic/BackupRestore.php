@@ -14,6 +14,7 @@ use Yii;
 use yii\base\InvalidConfigException;
 use yii\base\UnknownPropertyException;
 use yii\db\Connection;
+use yii\web\BadRequestHttpException;
 
 /**
  * Class BackupRestore
@@ -64,7 +65,26 @@ class BackupRestore
     {
         if ($this->_currentConfig['type'] == BackupType::DB)
             return $this->restoreDatabase();
+
+        if ($this->_currentConfig['type'] == BackupType::FILES)
+            return $this->restoreFiles();
     }
+
+
+    protected function restoreFiles()
+    {
+        $backupFile = Yii::getAlias(Yii::$app->getModule('backup')->backupFolder . DIRECTORY_SEPARATOR . $this->_model->filename);
+        $restorePath = Yii::getAlias($this->_currentConfig['path']);
+
+        if (!file_exists($backupFile))
+            throw new BadRequestHttpException('Backup file not found.');
+
+        if (!file_exists($restorePath))
+            throw new BadRequestHttpException('Restore path not found.');
+
+        exec("cd {$restorePath} && unzip -o {$backupFile}");
+    }
+
 
     /** Восстанавливаем базу данных из дампа:
      * Сначала пересоздаем её, выбираем, а дальше построчно читаем дамп из гзип-файла
