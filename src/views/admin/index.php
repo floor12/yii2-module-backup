@@ -11,12 +11,12 @@
 
 
 use floor12\backup\assets\BackupAdminAsset;
+use floor12\backup\assets\IconHelper;
 use floor12\backup\models\Backup;
 use floor12\backup\models\BackupFilter;
 use floor12\backup\models\BackupStatus;
 use floor12\backup\models\BackupType;
 use floor12\editmodal\EditModalHelper;
-use rmrevin\yii\fontawesome\FontAwesome;
 use yii\grid\GridView;
 use yii\helpers\Html;
 use yii\web\View;
@@ -38,14 +38,14 @@ $this->registerJs("backupeSuccessText='{$backupeSuccessText}'", View::POS_READY,
     <div class="btn-group pull-right">
         <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown"
                 aria-expanded="false">
-            <?= FontAwesome::icon('plus') ?>
+            <?= IconHelper::PLUS ?>
             Создать бекап <span class="caret"></span>
         </button>
         <ul class="dropdown-menu" role="menu">
             <?php foreach ($configs as $config) { ?>
                 <li>
                     <a onclick="backup.create('<?= $config['id'] ?>')">
-                        <?= FontAwesome::i($config['type'] == BackupType::DB ? 'database' : 'file') ?>
+                        <?= $config['type'] == BackupType::DB ? IconHelper::DATABASE : IconHelper::FILE ?>
                         <?= $config['title'] ?>
                     </a>
                 </li>
@@ -79,15 +79,16 @@ echo GridView::widget([
             'content' => function (Backup $model) {
                 $html = ' ';
                 if (file_exists($model->getFullPath()))
-                    $html .= FontAwesome::icon('check', ['title' => 'Файл найден', 'style' => 'color:#38b704;']);
+                    $html .= Html::tag('span', IconHelper::CHECK, ['title' => 'Файл найден', 'style' => 'color:#38b704;']);
                 else
-                    $html .= FontAwesome::icon('ban', ['title' => 'Файл не найден', 'style' => 'color:#eca70b;']);
+                    $html .= Html::tag('span', IconHelper::EXCLAMATION, ['title' => 'Файл не найден', 'style' => 'color:#eca70b;']);
+
                 $html .= ' ';
 
                 if (is_writable($model->getFullPath()))
-                    $html .= FontAwesome::icon('check', ['title' => 'Права на запись есть', 'style' => 'color:#38b704;']);
+                    $html .= Html::tag('span', IconHelper::CHECK, ['title' => 'Права на запись найден', 'style' => 'color:#38b704;']);
                 else
-                    $html .= FontAwesome::icon('ban', ['title' => 'Нет прав на запись', 'style' => 'color:#eca70b;']);
+                    $html .= Html::tag('span', IconHelper::EXCLAMATION, ['title' => 'Нет прав на запись', 'style' => 'color:#eca70b;']);
 
 
                 return $html;
@@ -97,19 +98,19 @@ echo GridView::widget([
         [
             'contentOptions' => ['class' => 'text-right'],
             'content' => function (Backup $model) {
-                $html = Html::a(FontAwesome::icon('play'), null, [
+                $html = Html::a(\floor12\backup\assets\IconHelper::PLAY, null, [
                     'class' => 'btn btn-default btn-sm',
                     'title' => Yii::t('app.f12.backup', 'Restore'),
                     'onclick' => "backup.restore({$model->id})"
                 ]);
-                $html .= " " . Html::a(FontAwesome::icon('download'),
+                $html .= " " . Html::a(\floor12\backup\assets\IconHelper::DOWNLOAD,
                         ['/backup/admin/download', 'id' => $model->id], [
                             'class' => 'btn btn-default btn-sm',
                             'title' => Yii::t('app.f12.backup', 'Download'),
                             'target' => '_blank',
                             'data-pjax' => '0'
                         ]);
-                $html .= " " . Html::a(FontAwesome::icon('trash'), null, [
+                $html .= " " . Html::a(\floor12\editmodal\IconHelper::TRASH, null, [
                         'class' => 'btn btn-default btn-sm',
                         'title' => Yii::t('app.f12.backup', 'Delete'),
                         'onclick' => EditModalHelper::deleteItem('/backup/admin/delete', $model->id)
