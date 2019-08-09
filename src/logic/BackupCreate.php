@@ -144,10 +144,12 @@ class BackupCreate
 
     private function dumpFiles($pathFull)
     {
-
         $path = Yii::getAlias($this->_currentConfig['path']);
 
-        exec("cd {$path} && zip -r -0 {$pathFull} *");
+        if (Yii::$app->getModule('backup')->ionice)
+            exec(" cd {$path} && " . Yii::$app->getModule('backup')->ionice . " zip -r -0 {$pathFull} *");
+        else
+            exec("cd {$path} && zip -r -0 {$pathFull} *");
 
         if (Yii::$app->getModule('backup')->chmod)
             chmod($pathFull, Yii::$app->getModule('backup')->chmod);

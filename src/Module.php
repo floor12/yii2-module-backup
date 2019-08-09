@@ -33,6 +33,8 @@ class Module extends \yii\base\Module
 
     public $connection;
 
+    public $ionice;
+
     public $configs = [];
 
     /**
