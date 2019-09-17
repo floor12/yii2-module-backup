@@ -37,6 +37,8 @@ class Module extends \yii\base\Module
 
     public $configs = [];
 
+    public $adminLayout = '@app/views/layouts/main';
+
     /**
      * @inheritdoc
      */

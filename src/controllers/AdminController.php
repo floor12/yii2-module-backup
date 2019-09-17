@@ -46,6 +46,16 @@ class AdminController extends Controller
         ];
     }
 
+    /**
+     * @inheritdoc
+     */
+    public function init()
+    {
+        $this->layout = Yii::$app->getModule('backup')->adminLayout;
+        parent::init();
+    }
+
+
     public function actionIndex()
     {
         $model = new BackupFilter();
