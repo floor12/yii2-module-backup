@@ -11,7 +11,12 @@ namespace floor12\backup\assets;
 
 use yii\web\AssetBundle;
 
-
+/**
+ * Backup module admin asset bindle
+ *
+ * Class BackupAdminAsset
+ * @package floor12\backup\assets
+ */
 class BackupAdminAsset extends AssetBundle
 {
     public $publishOptions = [
@@ -27,6 +32,7 @@ class BackupAdminAsset extends AssetBundle
         'js/backup.admin.js'
     ];
     public $depends = [
+        'floor12\notification\NotificationAsset',
         'yii\web\JqueryAsset'
     ];
 }

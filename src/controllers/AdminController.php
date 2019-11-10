@@ -12,7 +12,6 @@ use floor12\backup\logic\BackupCreate;
 use floor12\backup\logic\BackupRestore;
 use floor12\backup\models\Backup;
 use floor12\backup\models\BackupFilter;
-use floor12\editmodal\DeleteAction;
 use Yii;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
@@ -21,8 +20,16 @@ use yii\web\NotFoundHttpException;
 
 class AdminController extends Controller
 {
-    public $defaultAction = 'index';
 
+    /**
+     * @var Backup
+     */
+    protected $model;
+
+    /**
+     * @inheritDoc
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -38,6 +45,7 @@ class AdminController extends Controller
             'verbs' => [
                 'class' => VerbFilter::class,
                 'actions' => [
+                    'index' => ['get'],
                     'delete' => ['delete'],
                     'backup' => ['post'],
                     'restore' => ['post'],
@@ -55,7 +63,9 @@ class AdminController extends Controller
         parent::init();
     }
 
-
+    /**
+     * @return string
+     */
     public function actionIndex()
     {
         $model = new BackupFilter();
@@ -65,17 +75,19 @@ class AdminController extends Controller
         ]);
     }
 
-    public function actions()
+    /**
+     * @return string
+     */
+    public function actionDelete()
     {
-        return [
-            'delete' => [
-                'class' => DeleteAction::class,
-                'model' => Backup::class,
-                'message' => Yii::t('app.f12.backup', 'Backup is deleted')
-            ]
-        ];
+        $this->getBackup((int)Yii::$app->request->post('id'));
+       // $this->model->delete();
     }
 
+    /**
+     * @throws NotFoundHttpException
+     * @throws \yii\base\InvalidConfigException
+     */
     public function actionBackup()
     {
         $config_id = '';
@@ -84,26 +96,40 @@ class AdminController extends Controller
                 $config_id = $config['id'];
 
         if (!$config_id)
-            throw new NotFoundHttpException('Backup config not found');
+            throw new NotFoundHttpException(Yii::t('app.f12.backup', 'Backup config is not found.'));
 
         Yii::createObject(BackupCreate::class, [$config_id])->run();
     }
 
+    /**
+     * @throws NotFoundHttpException
+     * @throws \ErrorException
+     * @throws \yii\base\InvalidConfigException
+     */
     public function actionRestore()
     {
-        $model = Backup::findOne(Yii::$app->request->post('backup_id'));
-        if (!$model)
-            throw new NotFoundHttpException('Backup not found.');
-
+        $this->getBackup((int)Yii::$app->request->post('id'));
         Yii::createObject(BackupRestore::class, [$model])->run();
     }
 
+    /**
+     * @param $id
+     * @throws NotFoundHttpException
+     */
     public function actionDownload($id)
     {
-        $model = Backup::findOne((int)$id);
-        if (!$model)
-            throw new NotFoundHttpException('Backup is not found');
+        $this->getBackup((int)$id);
+        Yii::$app->response->sendFile($this->model->getFullPath());
+    }
 
-        Yii::$app->response->sendFile($model->getFullPath());
+    /**
+     * @param int $id
+     * @throws NotFoundHttpException
+     */
+    protected function getBackup(int $id)
+    {
+        $this->model = Backup::findOne($id);
+        if (!$this->model)
+            throw new NotFoundHttpException(Yii::t('app.f12.backup', 'Backup is not found.'));
     }
 }

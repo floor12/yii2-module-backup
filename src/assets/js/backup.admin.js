@@ -1,6 +1,7 @@
 restoreConfirmText = '';
 restoreSuccessText = '';
 backupeSuccessText = '';
+deleteSuccessText = '';
 
 backup = {
 
@@ -10,28 +11,47 @@ backup = {
             method: 'POST',
             data: {config_id: config_id},
             error: function (response) {
-                processError(response)
+                processError(response);
             },
             success: function (response) {
-                info(backupeSuccessText, 1);
-                $.pjax.reload({container: '#items'})
+                backup.reloadGrid();
+                f12notification.success(backupeSuccessText);
             }
         })
     },
 
-    restore: function (backup_id) {
+    restore: function (id) {
         if (confirm(restoreConfirmText))
             $.ajax({
                 url: '/backup/admin/restore',
                 method: 'POST',
-                data: {backup_id: backup_id},
+                data: {id: id},
                 error: function (response) {
                     processError(response)
                 },
                 success: function (response) {
-                    info(restoreSuccessText, 1);
-                    $.pjax.reload({container: '#items'})
+                    backup.reloadGrid();
+                    f12notification.success(restoreSuccessText);
                 }
             })
+    },
+
+    delete: function (id) {
+        if (confirm(restoreConfirmText))
+            $.ajax({
+                url: '/backup/admin/delete',
+                method: 'DELETE',
+                data: {id: id},
+                error: function (response) {
+                    processError(response)
+                },
+                success: function (response) {
+                    backup.reloadGrid();
+                    f12notification.success(deleteSuccessText);
+                }
+            })
+    },
+    reloadGrid: function () {
+        $.pjax.reload({container: '#items', timeout: 5000})
     }
 }

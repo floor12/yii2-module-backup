@@ -22,7 +22,8 @@
   "require": {
     "yiisoft/yii2": "@dev",
     "yii2mod/yii2-enum": "^1.7",
-    "ifsnop/mysqldump-php":"2.*"
+    "ifsnop/mysqldump-php":"2.*",
+    "floor12/yii2-notification": "~1.3.2"
   },
   "autoload": {
     "psr-4": {

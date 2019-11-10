@@ -16,7 +16,6 @@ use floor12\backup\models\Backup;
 use floor12\backup\models\BackupFilter;
 use floor12\backup\models\BackupStatus;
 use floor12\backup\models\BackupType;
-use floor12\editmodal\EditModalHelper;
 use yii\grid\GridView;
 use yii\helpers\Html;
 use yii\web\View;
@@ -29,9 +28,11 @@ BackupAdminAsset::register($this);
 $restoreConfirmText = Yii::t('app.f12.backup', 'Are your realy want to restor thie backup?');
 $restoreSuccessText = Yii::t('app.f12.backup', 'Backup was successful restored.');
 $backupeSuccessText = Yii::t('app.f12.backup', 'Backup was successful created.');
+$deleteSuccessText = Yii::t('app.f12.backup', 'Backup is deleted.');
 $this->registerJs("restoreConfirmText='{$restoreConfirmText}'", View::POS_READY, 'restoreConfirmText');
 $this->registerJs("restoreSuccessText='{$restoreSuccessText}'", View::POS_READY, 'restoreSuccessText');
 $this->registerJs("backupeSuccessText='{$backupeSuccessText}'", View::POS_READY, 'backupeSuccessText');
+$this->registerJs("deleteSuccessText='{$deleteSuccessText}'", View::POS_READY, 'deleteSuccessText');
 
 ?>
 
@@ -98,22 +99,22 @@ echo GridView::widget([
         [
             'contentOptions' => ['class' => 'text-right'],
             'content' => function (Backup $model) {
-                $html = Html::a(\floor12\backup\assets\IconHelper::PLAY, null, [
+                $html = Html::a(IconHelper::PLAY, null, [
                     'class' => 'btn btn-default btn-sm',
                     'title' => Yii::t('app.f12.backup', 'Restore'),
                     'onclick' => "backup.restore({$model->id})"
                 ]);
-                $html .= " " . Html::a(\floor12\backup\assets\IconHelper::DOWNLOAD,
+                $html .= " " . Html::a(IconHelper::DOWNLOAD,
                         ['/backup/admin/download', 'id' => $model->id], [
                             'class' => 'btn btn-default btn-sm',
                             'title' => Yii::t('app.f12.backup', 'Download'),
                             'target' => '_blank',
                             'data-pjax' => '0'
                         ]);
-                $html .= " " . Html::a(\floor12\editmodal\IconHelper::TRASH, null, [
+                $html .= " " . Html::button(IconHelper::TRASH, [
                         'class' => 'btn btn-default btn-sm',
                         'title' => Yii::t('app.f12.backup', 'Delete'),
-                        'onclick' => EditModalHelper::deleteItem('/backup/admin/delete', $model->id)
+                        'onclick' => "backup.delete({$model->id})"
                     ]);
 
                 return $html;

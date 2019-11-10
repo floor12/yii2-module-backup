@@ -15,15 +15,14 @@ use yii\db\Connection;
 class Module extends \yii\base\Module
 {
 
-    /** @var string FontAwesome helper class */
-    public $fontAwesome = 'rmrevin\yii\fontawesome\FontAwesome';
-
     /** @var string */
     public $editRole = 'admin';
 
     /** @var string */
     public $backupFolder = '@app/backups';
-
+    /**
+     * @var string
+     */
     public $chmod;
 
     /** @inheritdoc */
@@ -44,10 +43,7 @@ class Module extends \yii\base\Module
      */
     public function init()
     {
-        $this->fontAwesome = Yii::createObject($this->fontAwesome);
-
         $this->backupRootPath = Yii::getAlias($this->backupFolder);
-
 
         try {
             if (!file_exists($this->backupRootPath))
@@ -59,10 +55,19 @@ class Module extends \yii\base\Module
         if (!is_writable($this->backupRootPath))
             throw new ErrorException("Backup folder is not writeble.");
 
-        $this->connection = new Connection(['dsn' => 'sqlite:' . $this->backupRootPath . '/sqlite.db']);
+        $this->checkDb();
+        $this->registerTranslations();
+    }
+
+    /**
+     * @throws \yii\base\NotSupportedException
+     * @throws \yii\db\Exception
+     */
+    public function checkDb()
+    {
+        $dbFileName = $this->backupRootPath . '/sqlite.db';
+        $this->connection = new Connection(['dsn' => 'sqlite:' . $dbFileName]);
         $this->connection->getSchema();
-
-
         $this->connection->createCommand('
             CREATE TABLE IF NOT EXISTS backup (
               id INTEGER PRIMARY KEY,
@@ -75,14 +80,13 @@ class Module extends \yii\base\Module
               size INTEGER NOT NULL DEFAULT 0              
             );            
         ')->execute();
-
-
-        $this->registerTranslations();
     }
 
-
-    public
-    function registerTranslations()
+    /**
+     * Registing some lang files
+     * @return void
+     */
+    public function registerTranslations()
     {
         Yii::$app->i18n->translations['app.f12.backup'] = [
             'class' => 'yii\i18n\PhpMessageSource',

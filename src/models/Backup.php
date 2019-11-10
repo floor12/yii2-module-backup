@@ -60,7 +60,8 @@ class Backup extends ActiveRecord
         ];
     }
 
-    /** Гененрируем имя полноый путь к архиву на основании конфига и емения архива.
+    /**
+     * Full path to backup file on disk
      * @return string|void
      */
     public function getFullPath()
@@ -71,14 +72,21 @@ class Backup extends ActiveRecord
     }
 
     /**
-     * Обновляем размер архива после его создания.
+     * Backup file size updating
      * @return void
      */
     public function updateFileSize()
     {
-        $this->size = filesize($this->getFullPath());
+        $this->size = 0;
+        if (file_exists($this->getFullPath()))
+            $this->size = filesize($this->getFullPath());
+
     }
 
+    /**
+     * Delete file from disk
+     * @return void
+     */
     public function afterDelete()
     {
         @unlink($this->getFullPath());
