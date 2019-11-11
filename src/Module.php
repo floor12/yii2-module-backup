@@ -16,7 +16,7 @@ class Module extends \yii\base\Module
 {
 
     /** @var string */
-    public $editRole = 'admin';
+    public $administratorRoleName = 'admin';
 
     /** @var string */
     public $backupFolder = '@app/backups';

@@ -40,12 +40,12 @@ $this->registerJs("deleteSuccessText='{$deleteSuccessText}'", View::POS_READY, '
         <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown"
                 aria-expanded="false">
             <?= IconHelper::PLUS ?>
-            Создать бекап <span class="caret"></span>
+            <?= Yii::t('app.f12.backup', 'Run backup') ?> <span class="caret"></span>
         </button>
         <ul class="dropdown-menu" role="menu">
             <?php foreach ($configs as $config) { ?>
                 <li>
-                    <a onclick="backup.create('<?= $config['id'] ?>')">
+                    <a role="button" onclick="backup.create('<?= $config['id'] ?>')">
                         <?= $config['type'] == BackupType::DB ? IconHelper::DATABASE : IconHelper::FILE ?>
                         <?= $config['title'] ?>
                     </a>

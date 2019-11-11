@@ -149,7 +149,7 @@ class BackupCreate
         if (Yii::$app->getModule('backup')->ionice)
             exec(" cd {$path} && " . Yii::$app->getModule('backup')->ionice . " zip -r -0 {$pathFull} *");
         else
-            exec("cd {$path} && zip -r -0 {$pathFull} *");
+            exec("cd {$path} && zip -r -0 {$pathFull} *", $tmo);
 
         if (Yii::$app->getModule('backup')->chmod)
             chmod($pathFull, Yii::$app->getModule('backup')->chmod);

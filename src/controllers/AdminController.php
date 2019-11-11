@@ -38,7 +38,7 @@ class AdminController extends Controller
                 'rules' => [
                     [
                         'allow' => true,
-                        'roles' => [Yii::$app->getModule('backup')->editRole],
+                        'roles' => [Yii::$app->getModule('backup')->administratorRoleName],
                     ],
                 ],
             ],
@@ -81,7 +81,7 @@ class AdminController extends Controller
     public function actionDelete()
     {
         $this->getBackup((int)Yii::$app->request->post('id'));
-       // $this->model->delete();
+        $this->model->delete();
     }
 
     /**
@@ -109,7 +109,7 @@ class AdminController extends Controller
     public function actionRestore()
     {
         $this->getBackup((int)Yii::$app->request->post('id'));
-        Yii::createObject(BackupRestore::class, [$model])->run();
+        Yii::createObject(BackupRestore::class, [$this->model])->run();
     }
 
     /**
