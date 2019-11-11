@@ -5,7 +5,9 @@
     "yii2",
     "extension",
     "module",
-    "backup"
+    "backup",
+    "zip",
+    "gzip"
   ],
   "homepage": "https://github.com/dragonjet/yii2-module-backup",
   "type": "yii2-extension",
@@ -13,21 +15,35 @@
   "authors": [
     {
       "name": "floor12",
-      "email": "primelifecoder@gmail.com",
+      "email": "floor12@floor12",
       "role": "Developer",
       "homepage": "http://floor12.net"
     }
   ],
   "minimum-stability": "stable",
   "require": {
-    "yiisoft/yii2": "@dev",
+    "yiisoft/yii2": "~2.0.19",
     "yii2mod/yii2-enum": "^1.7",
-    "ifsnop/mysqldump-php":"2.*",
+    "ifsnop/mysqldump-php": "2.*",
     "floor12/yii2-notification": "~1.3.1"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "7.*"
   },
   "autoload": {
     "psr-4": {
       "floor12\\backup\\": "src"
     }
-  }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "floor12\\backup\\tests\\": "tests"
+    }
+  },
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://asset-packagist.org"
+    }
+  ]
 }
