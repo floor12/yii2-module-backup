@@ -24,8 +24,13 @@ class Module extends \yii\base\Module
      * @var string
      */
     public $chmod;
-
-    /** @inheritdoc */
+    /**
+     * @var array
+     */
+    public $authTokens = [];
+    /**
+     * @inheritdoc
+     */
     public $controllerNamespace = 'floor12\backup\controllers';
 
     public $backupRootPath;
