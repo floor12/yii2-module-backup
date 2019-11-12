@@ -63,11 +63,10 @@ class ConsoleController extends Controller
      */
     public function actionIndex()
     {
-        $this->stderr('Backups not found.' . PHP_EOL, Console::FG_YELLOW);
-
         $models = Backup::find()->orderBy('id DESC')->all();
+        
         if (empty($models))
-            $this->stderr('Backups not found.' . PHP_EOL, Console::FG_YELLOW);
+            return $this->stderr('Backups not found.' . PHP_EOL, Console::FG_YELLOW);
 
         foreach ($models as $model)
             $this->stdout("{$model->id}: " . Yii::$app->formatter->asDatetime($model->date) . "\t\t{$model->config_id}\t\t" .
