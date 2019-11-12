@@ -13,6 +13,7 @@ use floor12\backup\logic\BackupRestore;
 use floor12\backup\models\Backup;
 use floor12\backup\models\BackupFilter;
 use Yii;
+use yii\base\InvalidConfigException;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use yii\web\Controller;
@@ -86,16 +87,13 @@ class AdminController extends Controller
 
     /**
      * @throws NotFoundHttpException
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     public function actionBackup()
     {
-        $config_id = '';
-        foreach (Yii::$app->getModule('backup')->configs as $config)
-            if ($config['id'] == Yii::$app->request->post('config_id'))
-                $config_id = $config['id'];
+        $config_id = Yii::$app->request->post('config_id');
 
-        if (!$config_id)
+        if (!Yii::$app->getModule('backup')->checkConfig($config_id))
             throw new NotFoundHttpException(Yii::t('app.f12.backup', 'Backup config is not found.'));
 
         Yii::createObject(BackupCreate::class, [$config_id])->run();
@@ -104,7 +102,7 @@ class AdminController extends Controller
     /**
      * @throws NotFoundHttpException
      * @throws \ErrorException
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     public function actionRestore()
     {
