@@ -10,15 +10,20 @@ namespace floor12\backup;
 
 use Yii;
 use yii\base\ErrorException;
+use yii\base\NotSupportedException;
 use yii\db\Connection;
+use yii\db\Exception;
 
 class Module extends \yii\base\Module
 {
 
-    /** @var string */
+    /**
+     * @var string
+     */
     public $administratorRoleName = 'admin';
-
-    /** @var string */
+    /**
+     * @var string
+     */
     public $backupFolder = '@app/backups';
     /**
      * @var string
@@ -32,15 +37,25 @@ class Module extends \yii\base\Module
      * @inheritdoc
      */
     public $controllerNamespace = 'floor12\backup\controllers';
-
+    /**
+     * @var string
+     */
     public $backupRootPath;
-
+    /**
+     * @var string
+     */
     public $connection;
-
+    /**
+     * @var string
+     */
     public $ionice;
-
+    /**
+     * @var array
+     */
     public $configs = [];
-
+    /**
+     * @var string
+     */
     public $adminLayout = '@app/views/layouts/main';
 
     /**
@@ -65,8 +80,20 @@ class Module extends \yii\base\Module
     }
 
     /**
-     * @throws \yii\base\NotSupportedException
-     * @throws \yii\db\Exception
+     * @param string $config_id
+     * @return bool
+     */
+    public function checkConfig(string $config_id)
+    {
+        foreach (Yii::$app->getModule('backup')->configs as $config)
+            if ($config['id'] == $config_id)
+                return true;
+        return false;
+    }
+
+    /**
+     * @throws NotSupportedException
+     * @throws Exception
      */
     public function checkDb()
     {
