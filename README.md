@@ -1,4 +1,9 @@
+# yii2-module-backup
+
+[![Build Status](https://travis-ci.org/floor12/yii2-module-files.svg?branch=master)](https://travis-ci.org/floor12/yii2-module-backup)
+
 ## The module functions
+
 
 *Этот файл доступен на [русском языке](README_RU.md).*
 

@@ -1,3 +1,7 @@
+# yii2-module-backup
+
+[![Build Status](https://travis-ci.org/floor12/yii2-module-files.svg?branch=master)](https://travis-ci.org/floor12/yii2-module-backup)
+
 ## Функции модуля
 
 Это модуль разработан чтобы организовать работу с бекапами вашего приложения силами самого Yii2
