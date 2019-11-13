@@ -20,4 +20,8 @@ install:
   - travis_retry composer install
 
 script:
-  - vendor/bin/phpunit --verbose $PHPUNIT_FLAGS
+  - vendor/bin/phpunit --coverage-clover=coverage.clover --verbose
+
+after_script:
+  - travis_retry wget https://scrutinizer-ci.com/ocular.phar
+  - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
