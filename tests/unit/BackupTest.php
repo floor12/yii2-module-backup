@@ -18,7 +18,6 @@ use Yii;
 
 class BackupTest extends TestCase
 {
-
     public function testGetFullPathWithEmptyFilename()
     {
         $model = new Backup();

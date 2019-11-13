@@ -64,8 +64,8 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         Yii::$app->setModule('backup', $backupModule);
 
         $db = [
-            'class' => 'yii\db\Connection',
-            'dsn' => "sqlite:$this->sqlite",
+            'class' => ConnectionMock::class,
+            'databaseName' => "dataBaseName",
         ];
         Yii::$app->set('db', $db);
 

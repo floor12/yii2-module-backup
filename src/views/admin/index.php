@@ -25,13 +25,13 @@ $this->title = Yii::t('app.f12.backup', 'Backups');
 
 BackupAdminAsset::register($this);
 
-$restoreConfirmText = Yii::t('app.f12.backup', 'Are your realy want to restor thie backup?');
+$restoreConfirmText = Yii::t('app.f12.backup', 'Do you want to restore this backup?');
 $restoreSuccessText = Yii::t('app.f12.backup', 'Backup was successful restored.');
 $backupSuccessText = Yii::t('app.f12.backup', 'Backup was successful created.');
 $deleteSuccessText = Yii::t('app.f12.backup', 'Backup is deleted.');
 $this->registerJs("restoreConfirmText='{$restoreConfirmText}'", View::POS_READY, 'restoreConfirmText');
 $this->registerJs("restoreSuccessText='{$restoreSuccessText}'", View::POS_READY, 'restoreSuccessText');
-$this->registerJs("backupeSuccessText='{$backupeSuccessText}'", View::POS_READY, 'backupeSuccessText');
+$this->registerJs("backupSuccessText='{$backupSuccessText}'", View::POS_READY, 'backupSuccessText');
 $this->registerJs("deleteSuccessText='{$deleteSuccessText}'", View::POS_READY, 'deleteSuccessText');
 
 ?>
