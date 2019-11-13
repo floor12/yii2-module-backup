@@ -12,8 +12,10 @@ use floor12\backup\logic\BackupCreate;
 use floor12\backup\logic\BackupRestore;
 use floor12\backup\models\Backup;
 use floor12\backup\models\BackupFilter;
+use Throwable;
 use Yii;
 use yii\base\InvalidConfigException;
+use yii\db\StaleObjectException;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use yii\web\Controller;
@@ -78,16 +80,22 @@ class AdminController extends Controller
 
     /**
      * @return string
+     * @throws NotFoundHttpException
+     * @throws Throwable
+     * @throws StaleObjectException
      */
     public function actionDelete()
     {
         $this->getBackup((int)Yii::$app->request->post('id'));
         $this->model->delete();
+        $this->model->delete();
     }
 
     /**
-     * @throws NotFoundHttpException
      * @throws InvalidConfigException
+     * @throws NotFoundHttpException
+     * @throws StaleObjectException
+     * @throws Throwable
      */
     public function actionBackup()
     {
@@ -100,9 +108,8 @@ class AdminController extends Controller
     }
 
     /**
-     * @throws NotFoundHttpException
-     * @throws \ErrorException
      * @throws InvalidConfigException
+     * @throws NotFoundHttpException
      */
     public function actionRestore()
     {

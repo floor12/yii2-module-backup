@@ -7,6 +7,7 @@
  *
  * @var $this View
  * @var $model BackupFilter
+ * @var $configs array
  */
 
 

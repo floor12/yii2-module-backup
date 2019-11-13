@@ -12,6 +12,7 @@ namespace floor12\backup\tests\unit;
  * This is a tests for Backup class
  */
 
+use ErrorException;
 use floor12\backup\logic\BackupRestore;
 use floor12\backup\models\Backup;
 use floor12\backup\models\BackupStatus;
@@ -46,7 +47,7 @@ class BackupRestoreTest extends TestCase
             'type' => BackupType::FILES,
             'config_id' => $config_id
         ]);
-        $this->expectException(\ErrorException::class);
+        $this->expectException(ErrorException::class);
         $this->expectExceptionMessage("Config `{$config_id}` not found.");
         $restorer = new BackupRestore($backup);
     }

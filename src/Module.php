@@ -73,7 +73,7 @@ class Module extends \yii\base\Module
         }
 
         if (!is_writable($this->backupRootPath))
-            throw new ErrorException("Backup folder is not writeble.");
+            throw new ErrorException("Backup folder is not writable.");
 
         $this->checkDb();
         $this->registerTranslations();
@@ -115,7 +115,7 @@ class Module extends \yii\base\Module
     }
 
     /**
-     * Registing some lang files
+     * Register some lang files
      * @return void
      */
     public function registerTranslations()

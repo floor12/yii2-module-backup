@@ -1,14 +1,14 @@
 # yii2-module-backup
 
 [![Build Status](https://travis-ci.org/floor12/yii2-module-files.svg?branch=master)](https://travis-ci.org/floor12/yii2-module-backup)
-
-## The module functions
-
+[![Latest Stable Version](https://poser.pugx.org/floor12/yii2-module-backup/v/stable)](https://packagist.org/packages/floor12/yii2-module-backup)
+[![Latest Unstable Version](https://poser.pugx.org/floor12/yii2-module-backup/v/unstable)](https://packagist.org/packages/floor12/yii2-module-backup)
+[![Total Downloads](https://poser.pugx.org/floor12/yii2-module-backup/downloads)](https://packagist.org/packages/floor12/yii2-module-backup)
+[![License](https://poser.pugx.org/floor12/yii2-module-backup/license)](https://packagist.org/packages/floor12/yii2-module-backup)
 
 *Этот файл доступен на [русском языке](README_RU.md).*
 
-This module helps to create and restore backups of databases and files stored on disk. It has web-interface, console commands, and REST
--API for remote control. It also supports io-priority settings and has flexible configuration options. To work independent of the
+This module helps to create and restore backups of databases and files stored on disk. It has web-interface, console commands, and REST-API for remote control. It also supports io-priority settings and has flexible configuration options. To work independent of the
  application database, this module uses its sqlite database in the backup folder.
  
 ### i18n

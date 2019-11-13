@@ -54,4 +54,4 @@ backup = {
     reloadGrid: function () {
         $.pjax.reload({container: '#items', timeout: 5000})
     }
-}
+};

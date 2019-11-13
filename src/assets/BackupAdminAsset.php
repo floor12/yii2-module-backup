@@ -12,7 +12,7 @@ namespace floor12\backup\assets;
 use yii\web\AssetBundle;
 
 /**
- * Backup module admin asset bindle
+ * Backup module admin asset bundle
  *
  * Class BackupAdminAsset
  * @package floor12\backup\assets

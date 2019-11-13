@@ -8,6 +8,8 @@
 
 namespace floor12\backup\logic;
 
+use ErrorException;
+use Exception;
 use floor12\backup\models\Backup;
 use floor12\backup\models\BackupType;
 use Yii;
@@ -36,7 +38,7 @@ class BackupRestore
      * BackupRestore constructor.
      * @param Backup $model
      * @throws InvalidConfigException
-     * @throws \ErrorException
+     * @throws ErrorException
      */
     public function __construct(Backup $model)
     {
@@ -51,7 +53,7 @@ class BackupRestore
         }
 
         if (!$this->_currentConfig)
-            throw new \ErrorException("Config `{$model->config_id}` not found.");
+            throw new ErrorException("Config `{$model->config_id}` not found.");
 
         $this->_model = $model;
         $this->backupFilePath = Yii::getAlias(Yii::$app->getModule('backup')->backupFolder . DIRECTORY_SEPARATOR . $this->_model->filename);
@@ -61,7 +63,7 @@ class BackupRestore
      * Ma
      * @return bool
      * @throws InvalidConfigException
-     * @throws \Exception
+     * @throws Exception
      */
     public function run()
     {

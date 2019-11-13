@@ -12,9 +12,13 @@ use floor12\backup\logic\BackupCreate;
 use floor12\backup\logic\BackupRestore;
 use floor12\backup\models\Backup;
 use floor12\backup\models\BackupFilter;
+use Throwable;
 use Yii;
+use yii\base\InvalidConfigException;
+use yii\db\StaleObjectException;
 use yii\filters\ContentNegotiator;
 use yii\filters\VerbFilter;
+use yii\web\BadRequestHttpException;
 use yii\web\Controller;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
@@ -31,7 +35,7 @@ class ApiController extends Controller
     /**
      * @var array
      */
-    protected $successResonse = [
+    protected $successResponse = [
         'result' => 'success'
     ];
 
@@ -65,7 +69,7 @@ class ApiController extends Controller
      * @param $action
      * @return bool
      * @throws ForbiddenHttpException
-     * @throws \yii\web\BadRequestHttpException
+     * @throws BadRequestHttpException
      */
     public function beforeAction($action)
     {
@@ -76,8 +80,7 @@ class ApiController extends Controller
 
 
     /**
-     * @return string
-     * @throws ForbiddenHttpException
+     * @return array
      */
     public function actionIndex()
     {
@@ -86,18 +89,26 @@ class ApiController extends Controller
     }
 
     /**
-     * @return string
+     * @param $id
+     * @return array
+     * @throws NotFoundHttpException
+     * @throws Throwable
+     * @throws StaleObjectException
      */
     public function actionDelete($id)
     {
         $this->getBackup((int)$id);
         $this->model->delete();
-        return $this->successResonse;
+        return $this->successResponse;
     }
 
     /**
-     * @throws NotFoundHttpException
+     * @param $config_id
+     * @return array
      * @throws InvalidConfigException
+     * @throws NotFoundHttpException
+     * @throws Throwable
+     * @throws StaleObjectException
      */
     public function actionBackup($config_id)
     {
@@ -106,19 +117,20 @@ class ApiController extends Controller
 
         Yii::createObject(BackupCreate::class, [$config_id])->run();
 
-        return $this->successResonse;
+        return $this->successResponse;
     }
 
     /**
-     * @throws NotFoundHttpException
-     * @throws \ErrorException
+     * @param $id
+     * @return array
      * @throws InvalidConfigException
+     * @throws NotFoundHttpException
      */
     public function actionRestore($id)
     {
         $this->getBackup((int)$id);
         Yii::createObject(BackupRestore::class, [$this->model])->run();
-        return $this->successResonse;
+        return $this->successResponse;
     }
 
     /**
