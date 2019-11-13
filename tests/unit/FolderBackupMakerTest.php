@@ -41,7 +41,6 @@ class FolderBackupMakerTest extends TestCase
         $creator = new FolderBackupMaker($backupFilePath, $targetFolder);
         $this->assertTrue($creator->execute());
         $this->fileExists($backupFilePath);
-        $this->assertEquals('0644', $this->readPerms($backupFilePath));
         unlink($backupFilePath);
     }
 
