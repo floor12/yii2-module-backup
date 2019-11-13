@@ -8,92 +8,125 @@
 
 namespace floor12\backup\logic;
 
+use ErrorException;
 use floor12\backup\models\Backup;
 use floor12\backup\models\BackupStatus;
 use floor12\backup\models\BackupType;
 use Ifsnop\Mysqldump\Mysqldump;
+use Throwable;
 use Yii;
 use yii\base\InvalidConfigException;
+use yii\db\StaleObjectException;
 
 /**
  * Class BackupCreate
  * @package floor12\backup\logic
- * @property Backup $_model
- * @property array $_configs
+ * @property Backup $model
+ * @property array $configs
  * @property array $_config
  */
 class BackupCreate
 {
 
-    private $_configs;
-    private $_currentConfig;
-    private $_model;
+    private $configs;
+    private $currentConfig;
+    private $model;
+    /**
+     * @var string
+     */
+    protected $dumperClass;
 
     /**
      * BackupCreate constructor.
      * @param string $config_id
      * @throws InvalidConfigException
-     * @throws \ErrorException
+     * @throws ErrorException
      */
-    public function __construct(string $config_id)
+    public function __construct(string $config_id, string $dumperClass = Mysqldump::class)
     {
-        $this->_configs = Yii::$app->getModule('backup')->configs;
+        $this->configs = Yii::$app->getModule('backup')->configs;
 
-        if (!is_array($this->_configs) || !sizeof($this->_configs))
+        if (!is_array($this->configs) || !sizeof($this->configs))
             throw new InvalidConfigException('Backup module need to be configured with `config array`');
 
-        foreach ($this->_configs as $config) {
+        foreach ($this->configs as $config) {
             if (isset($config['id']) && $config['id'] == $config_id)
-                $this->_currentConfig = $config;
+                $this->currentConfig = $config;
         }
 
-        if (!$this->_currentConfig)
-            throw new \ErrorException("Config `{$config_id}` not found.");
-
-        $this->_model = new Backup();
-
+        if (!$this->currentConfig)
+            throw new ErrorException("Config `{$config_id}` not found.");
     }
 
-    /** Основный метод, который запускает процесс
-     * @return bool
+    /**
+     * @return void
+     * @throws InvalidConfigException
+     * @throws Throwable
+     * @throws StaleObjectException
      */
     public function run()
     {
-        if (isset($this->_currentConfig['limit'])) {
-            $backups = Backup::find()
-                ->where(['config_id' => $this->_currentConfig['id']])
-                ->orderBy('date DESC')
-                ->offset($this->_currentConfig['limit'])
-                ->all();
-            if ($backups)
-                foreach ($backups as $backup)
-                    $backup->delete();
+        $this->deleteOldFiles();
+
+        $this->createBackupItem();
+
+        if ($this->currentConfig['type'] == BackupType::DB) {
+            $connection = Yii::$app->{$this->currentConfig['connection']};
+            Yii::createObject(DatabaseBackupMaker::class, [$this->model->getFullPath(), $connection, $this->dumperClass])->execute();
         }
 
-        if ($this->_currentConfig['type'] == BackupType::DB)
-            return $this->backupDatabase();
+        if ($this->currentConfig['type'] == BackupType::FILES) {
+            $targetPath = Yii::getAlias($this->_currentConfig['path']);
+            Yii::createObject(FolderBackupMaker::class, [$this->model->getFullPath(), $targetPath])->execute();
+        }
 
-        if ($this->_currentConfig['type'] == BackupType::FILES)
-            return $this->backupFiles();
+        $this->finalize();
     }
 
-    /** Создаем экзеспляр бекапа в своей sqlite базе
+    /**
      * @return bool
      */
-    private function backupDatabase()
+    protected function createBackupItem()
     {
-        $this->_model->date = date('Y-m-d H:i:s');
-        $this->_model->status = BackupStatus::IN_PROCESS;
-        $this->_model->type = $this->_currentConfig['type'];
-        $this->_model->config_id = $this->_currentConfig['id'];
-        $this->_model->config_name = $this->_currentConfig['title'];
-        $this->_model->filename = $this->createFileName() . Backup::EXT_TGZ;
-        $this->_model->save();
+        $this->model = new Backup();
+        $this->model->date = date('Y-m-d H:i:s');
+        $this->model->status = BackupStatus::IN_PROCESS;
+        $this->model->type = $this->currentConfig['type'];
+        $this->model->config_id = $this->currentConfig['id'];
+        $this->model->config_name = $this->currentConfig['title'];
+        $this->model->filename = $this->createFileName();
+        return $this->model->save();
+    }
 
-        $this->dumpDatabase($this->_model->getFullPath());
-        $this->_model->status = BackupStatus::DONE;
-        $this->_model->updateFileSize();
-        return $this->_model->save();
+    /**
+     * @return bool
+     */
+    protected function finalize()
+    {
+        $this->model->status = BackupStatus::DONE;
+        $this->model->updateFileSize();
+        return $this->model->save();
+    }
+
+    /**
+     * Delete old files if current config has files count limit
+     * @throws Throwable
+     * @throws StaleObjectException
+     */
+    protected function deleteOldFiles()
+    {
+        if (!isset($this->currentConfig['limit']) || empty($this->currentConfig['limit']))
+            return false;
+
+        $backups = Backup::find()
+            ->where(['config_id' => $this->currentConfig['id']])
+            ->orderBy('date DESC')
+            ->offset($this->currentConfig['limit'])
+            ->all();
+
+        if ($backups)
+            foreach ($backups as $backup)
+                $backup->delete();
     }
 
     /** Generate filename
@@ -101,58 +134,9 @@ class BackupCreate
      */
     private function createFileName()
     {
-        return $this->_currentConfig['id'] . "_" . date("Y-m-d_H-i-s");
+        $extension = BackupType::DB ? Backup::EXT_TGZ : Backup::EXT_ZIP;
+        $date = date("Y-m-d_H-i-s");
+        return "{$this->currentConfig['id']}_{$date}.{$extension}";
     }
 
-    /**
-     * @param $pathFull
-     */
-    private function dumpDatabase($pathFull)
-    {
-        $connection = Yii::$app->{$this->_currentConfig['connection']};
-
-        try {
-            $dump = new Mysqldump(
-                $connection->dsn,
-                $connection->username,
-                $connection->password,
-                ['compress' => Mysqldump::GZIP]
-            );
-            $dump->start($pathFull);
-            if (Yii::$app->getModule('backup')->chmod)
-                chmod($pathFull, Yii::$app->getModule('backup')->chmod);
-        } catch (\Exception $e) {
-            echo 'mysqldump-php error: ' . $e->getMessage();
-        }
-    }
-
-    private function backupFiles()
-    {
-        $this->_model->date = date('Y-m-d H:i:s');
-        $this->_model->status = BackupStatus::IN_PROCESS;
-        $this->_model->type = $this->_currentConfig['type'];
-        $this->_model->config_id = $this->_currentConfig['id'];
-        $this->_model->config_name = $this->_currentConfig['title'];
-        $this->_model->filename = $this->createFileName() . Backup::EXT_ZIP;
-        $this->_model->save();
-
-        $this->dumpFiles($this->_model->getFullPath());
-        $this->_model->status = BackupStatus::DONE;
-        $this->_model->updateFileSize();
-        return $this->_model->save();
-    }
-
-    private function dumpFiles($pathFull)
-    {
-        $path = Yii::getAlias($this->_currentConfig['path']);
-
-        if (Yii::$app->getModule('backup')->ionice)
-            exec(" cd {$path} && " . Yii::$app->getModule('backup')->ionice . " zip -r -0 {$pathFull} *");
-        else
-            exec("cd {$path} && zip -r -0 {$pathFull} *", $tmo);
-
-        if (Yii::$app->getModule('backup')->chmod)
-            chmod($pathFull, Yii::$app->getModule('backup')->chmod);
-
-    }
 }

@@ -80,7 +80,6 @@ class Backup extends ActiveRecord
         $this->size = 0;
         if (file_exists($this->getFullPath()))
             $this->size = filesize($this->getFullPath());
-
     }
 
     /**

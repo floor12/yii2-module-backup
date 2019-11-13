@@ -15,7 +15,7 @@
   "authors": [
     {
       "name": "floor12",
-      "email": "floor12@floor12",
+      "email": "floor12@floor12.net",
       "role": "Developer",
       "homepage": "http://floor12.net"
     }
@@ -28,7 +28,7 @@
     "floor12/yii2-notification": "~1.3.1"
   },
   "require-dev": {
-    "phpunit/phpunit": "7.*"
+    "phpunit/phpunit": "~7.5.17"
   },
   "autoload": {
     "psr-4": {

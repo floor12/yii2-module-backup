@@ -8,31 +8,44 @@
 
 namespace floor12\backup\tests;
 
+use floor12\backup\Module;
 use Yii;
+use yii\base\InvalidConfigException;
 use yii\console\Application;
 
 abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
-
+    /**
+     * @var string Path to sqlite database for tests
+     */
     public $sqlite = 'tests/sqlite.db';
-
+    /**
+     * @var Module
+     */
+    public $module;
 
     /**
      * @inheritdoc
+     * @throws InvalidConfigException
      */
     protected function setUp()
     {
-        parent::setUp();
         $this->mockApplication();
+        $this->setApp();
+        parent::setUp();
     }
 
+    /**
+     * Adds backup module to tmp app
+     */
     protected function setApp()
     {
-        $files = [
-            'class' => 'floor12\files\Module',
-            'storage' => '@app/storage',
+        $backupModule = [
+            'class' => 'floor12\backup\Module',
+            'backupFolder' => '@vendor/../tests/tmp',
         ];
-        Yii::$app->setModule('files', $files);
+        Yii::$app->setModule('backup', $backupModule);
+        $this->module = Yii::$app->getModule('backup');
     }
 
 
@@ -46,13 +59,12 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     *  Запускаем приложение
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     protected function mockApplication()
     {
         new Application([
-            'id' => 'testapp',
+            'id' => 'testApp',
             'basePath' => __DIR__,
             'vendorPath' => dirname(__DIR__) . '/vendor',
             'runtimePath' => __DIR__ . '/runtime',
@@ -61,7 +73,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
 
     /**
-     * Убиваем приложение
+     * Destroy test application
      */
     protected function destroyApplication()
     {

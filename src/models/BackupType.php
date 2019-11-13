@@ -15,7 +15,13 @@ class BackupType extends BaseEnum
 {
     const DB = 0;
     const FILES = 1;
-
+    /**
+     * @var string
+     */
+    public static $messageCategory = 'app.f12.backup';
+    /**
+     * @var array
+     */
     public static $list = [
         self::DB => 'Database',
         self::FILES => 'Files',
