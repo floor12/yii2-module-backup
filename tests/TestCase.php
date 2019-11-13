@@ -8,6 +8,7 @@
 
 namespace floor12\backup\tests;
 
+use floor12\backup\models\BackupType;
 use floor12\backup\Module;
 use Yii;
 use yii\base\InvalidConfigException;
@@ -43,8 +44,31 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         $backupModule = [
             'class' => 'floor12\backup\Module',
             'backupFolder' => '@vendor/../tests/tmp',
+            'configs' => [
+                [
+                    'id' => 'main_db',
+                    'type' => BackupType::DB,
+                    'title' => 'Main database',
+                    'connection' => 'db',
+                    'limit' => 10
+                ],
+                [
+                    'id' => 'tmp_folder',
+                    'type' => BackupType::FILES,
+                    'title' => 'TMP folder',
+                    'path' => '@app/tmp',
+                    'limit' => 2
+                ]
+            ]
         ];
         Yii::$app->setModule('backup', $backupModule);
+
+        $db = [
+            'class' => 'yii\db\Connection',
+            'dsn' => "sqlite:$this->sqlite",
+        ];
+        Yii::$app->set('db', $db);
+
         $this->module = Yii::$app->getModule('backup');
     }
 

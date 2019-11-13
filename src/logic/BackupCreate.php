@@ -15,7 +15,7 @@ use floor12\backup\models\BackupType;
 use Ifsnop\Mysqldump\Mysqldump;
 use Throwable;
 use Yii;
-use yii\base\InvalidConfigException;
+use yii\base\InvalidConfigException as InvalidConfigExceptionAlias;
 use yii\db\StaleObjectException;
 
 /**
@@ -39,15 +39,16 @@ class BackupCreate
     /**
      * BackupCreate constructor.
      * @param string $config_id
-     * @throws InvalidConfigException
+     * @throws InvalidConfigExceptionAlias
      * @throws ErrorException
      */
     public function __construct(string $config_id, string $dumperClass = Mysqldump::class)
     {
+        $this->dumperClass = $dumperClass;
         $this->configs = Yii::$app->getModule('backup')->configs;
 
         if (!is_array($this->configs) || !sizeof($this->configs))
-            throw new InvalidConfigException('Backup module need to be configured with `config array`');
+            throw new InvalidConfigExceptionAlias('Backup module need to be configured with `config array`');
 
         foreach ($this->configs as $config) {
             if (isset($config['id']) && $config['id'] == $config_id)
@@ -55,12 +56,12 @@ class BackupCreate
         }
 
         if (!$this->currentConfig)
-            throw new ErrorException("Config `{$config_id}` not found.");
+            throw new InvalidConfigExceptionAlias("Config `{$config_id}` not found.");
     }
 
     /**
      * @return void
-     * @throws InvalidConfigException
+     * @throws InvalidConfigExceptionAlias
      * @throws Throwable
      * @throws StaleObjectException
      */
@@ -76,7 +77,7 @@ class BackupCreate
         }
 
         if ($this->currentConfig['type'] == BackupType::FILES) {
-            $targetPath = Yii::getAlias($this->_currentConfig['path']);
+            $targetPath = Yii::getAlias($this->currentConfig['path']);
             Yii::createObject(FolderBackupMaker::class, [$this->model->getFullPath(), $targetPath])->execute();
         }
 
@@ -136,7 +137,7 @@ class BackupCreate
     {
         $extension = BackupType::DB ? Backup::EXT_TGZ : Backup::EXT_ZIP;
         $date = date("Y-m-d_H-i-s");
-        return "{$this->currentConfig['id']}_{$date}.{$extension}";
+        return "{$this->currentConfig['id']}_{$date}{$extension}";
     }
 
 }
