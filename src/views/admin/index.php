@@ -27,7 +27,7 @@ BackupAdminAsset::register($this);
 
 $restoreConfirmText = Yii::t('app.f12.backup', 'Are your realy want to restor thie backup?');
 $restoreSuccessText = Yii::t('app.f12.backup', 'Backup was successful restored.');
-$backupeSuccessText = Yii::t('app.f12.backup', 'Backup was successful created.');
+$backupSuccessText = Yii::t('app.f12.backup', 'Backup was successful created.');
 $deleteSuccessText = Yii::t('app.f12.backup', 'Backup is deleted.');
 $this->registerJs("restoreConfirmText='{$restoreConfirmText}'", View::POS_READY, 'restoreConfirmText');
 $this->registerJs("restoreSuccessText='{$restoreSuccessText}'", View::POS_READY, 'restoreSuccessText');

@@ -1,6 +1,6 @@
 restoreConfirmText = '';
 restoreSuccessText = '';
-backupeSuccessText = '';
+backupSuccessText = '';
 deleteSuccessText = '';
 
 backup = {
@@ -15,7 +15,7 @@ backup = {
             },
             success: function (response) {
                 backup.reloadGrid();
-                f12notification.success(backupeSuccessText);
+                f12notification.success(backupSuccessText);
             }
         })
     },
