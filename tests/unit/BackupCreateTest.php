@@ -72,5 +72,42 @@ class BackupCreateTest extends TestCase
         @unlink($backup->getFullPath());
     }
 
+    public function testSaveAllOldBackups()
+    {
+        Backup::deleteAll();
+        $this->assertEquals(0, Yii::$app->getModule('backup')->configs[1]['limit']);
+        $this->assertEquals(0, Backup::find()->count());
+        $this->create5TestsBackups();
+        $this->assertEquals(5, Backup::find()->count());
+    }
+
+    public function testSaveOnlyOneBackup()
+    {
+        Backup::deleteAll();
+        Yii::$app->getModule('backup')->configs[1]['limit'] = 1;
+
+        $this->assertEquals(0, Backup::find()->count());
+        $this->create5TestsBackups();
+        $this->assertEquals(1, Backup::find()->count());
+    }
+
+    public function testSaveThreeBackups()
+    {
+        Backup::deleteAll();
+        Yii::$app->getModule('backup')->configs[1]['limit'] = 3;
+
+        $this->assertEquals(0, Backup::find()->count());
+        $this->create5TestsBackups();
+        $this->assertEquals(3, Backup::find()->count());
+    }
+
+    protected function create5TestsBackups()
+    {
+        $config_id = 'tmp_folder';
+        $creator = new BackupCreate($config_id);
+        for ($i = 0; $i < 5; $i++)
+            $creator->run();
+    }
+
 
 }

@@ -50,14 +50,14 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                     'type' => BackupType::DB,
                     'title' => 'Main database',
                     'connection' => 'db',
-                    'limit' => 10
+                    'limit' => 0
                 ],
                 [
                     'id' => 'tmp_folder',
                     'type' => BackupType::FILES,
                     'title' => 'TMP folder',
-                    'path' => '@app/tmp',
-                    'limit' => 2
+                    'path' => '@app/tmp/_report',
+                    'limit' => 0
                 ]
             ]
         ];

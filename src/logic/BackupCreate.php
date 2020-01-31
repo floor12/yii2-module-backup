@@ -118,11 +118,10 @@ class BackupCreate
     {
         if (!isset($this->currentConfig['limit']) || empty($this->currentConfig['limit']))
             return false;
-
         $backups = Backup::find()
             ->where(['config_id' => $this->currentConfig['id']])
             ->orderBy('date DESC')
-            ->offset($this->currentConfig['limit'])
+            ->offset($this->currentConfig['limit'] - 1)
             ->all();
 
         if ($backups)
@@ -137,7 +136,8 @@ class BackupCreate
     {
         $extension = BackupType::DB ? Backup::EXT_TGZ : Backup::EXT_ZIP;
         $date = date("Y-m-d_H-i-s");
-        return "{$this->currentConfig['id']}_{$date}{$extension}";
+        $rand = substr(md5(rand(0, 9999)), 0, 3);
+        return "{$this->currentConfig['id']}_{$date}_{$rand}{$extension}";
     }
 
 }
