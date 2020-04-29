@@ -28,13 +28,13 @@ use yii\db\StaleObjectException;
 class BackupCreate
 {
 
-    private $configs;
-    private $currentConfig;
-    private $model;
     /**
      * @var string
      */
     protected $dumperClass;
+    private $configs;
+    private $currentConfig;
+    private $model;
 
     /**
      * BackupCreate constructor.
@@ -85,31 +85,6 @@ class BackupCreate
     }
 
     /**
-     * @return bool
-     */
-    protected function createBackupItem()
-    {
-        $this->model = new Backup();
-        $this->model->date = date('Y-m-d H:i:s');
-        $this->model->status = BackupStatus::IN_PROCESS;
-        $this->model->type = $this->currentConfig['type'];
-        $this->model->config_id = $this->currentConfig['id'];
-        $this->model->config_name = $this->currentConfig['title'];
-        $this->model->filename = $this->createFileName();
-        return $this->model->save();
-    }
-
-    /**
-     * @return bool
-     */
-    protected function finalize()
-    {
-        $this->model->status = BackupStatus::DONE;
-        $this->model->updateFileSize();
-        return $this->model->save();
-    }
-
-    /**
      * Delete old files if current config has files count limit
      * @throws Throwable
      * @throws StaleObjectException
@@ -129,6 +104,21 @@ class BackupCreate
                 $backup->delete();
     }
 
+    /**
+     * @return bool
+     */
+    protected function createBackupItem()
+    {
+        $this->model = new Backup();
+        $this->model->date = date('Y-m-d H:i:s');
+        $this->model->status = BackupStatus::IN_PROCESS;
+        $this->model->type = $this->currentConfig['type'];
+        $this->model->config_id = $this->currentConfig['id'];
+        $this->model->config_name = $this->currentConfig['title'];
+        $this->model->filename = $this->createFileName();
+        return $this->model->save();
+    }
+
     /** Generate filename
      * @return string
      */
@@ -138,6 +128,16 @@ class BackupCreate
         $date = date("Y-m-d_H-i-s");
         $rand = substr(md5(rand(0, 9999)), 0, 3);
         return "{$this->currentConfig['id']}_{$date}_{$rand}{$extension}";
+    }
+
+    /**
+     * @return bool
+     */
+    protected function finalize()
+    {
+        $this->model->status = BackupStatus::DONE;
+        $this->model->updateFileSize();
+        return $this->model->save();
     }
 
 }

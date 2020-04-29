@@ -61,15 +61,14 @@ class BackupCreateTest extends TestCase
         Backup::deleteAll();
         $this->assertEquals(0, Backup::find()->count());
         $config_id = 'tmp_folder';
-        $dumperClass = MysqldumpMock::class;
-        $creator = new BackupCreate($config_id, $dumperClass);
+        $creator = new BackupCreate($config_id);
         $creator->run();
 
         $backup = Backup::find()->one();
         $this->assertTrue(is_object($backup));
         $this->assertEquals(BackupType::FILES, $backup->type);
         $this->assertFileExists($backup->getFullPath());
-        @unlink($backup->getFullPath());
+       // @unlink($backup->getFullPath());
     }
 
     public function testSaveAllOldBackups()
