@@ -75,7 +75,7 @@ class Module extends \yii\base\Module
         if (!is_writable($this->backupRootPath))
             throw new ErrorException("Backup folder is not writable.");
 
-        $this->checkDb();
+        $this->checkSqliteDb();
         $this->registerTranslations();
     }
 
@@ -95,7 +95,7 @@ class Module extends \yii\base\Module
      * @throws NotSupportedException
      * @throws Exception
      */
-    public function checkDb()
+    public function checkSqliteDb()
     {
         $dbFileName = $this->backupRootPath . '/sqlite.db';
         $this->connection = new Connection(['dsn' => 'sqlite:' . $dbFileName]);
