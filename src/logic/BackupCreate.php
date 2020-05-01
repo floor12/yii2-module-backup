@@ -12,6 +12,7 @@ use ErrorException;
 use floor12\backup\models\Backup;
 use floor12\backup\models\BackupStatus;
 use floor12\backup\models\BackupType;
+use floor12\backup\models\IOPriority;
 use Throwable;
 use Yii;
 use yii\base\InvalidConfigException as InvalidConfigExceptionAlias;
@@ -83,14 +84,17 @@ class BackupCreate
         $this->deleteOldFiles();
         $this->createBackupItem();
 
+        if (empty($this->currentConfig['io']))
+            $this->currentConfig['io'] = IOPriority::IDLE;
+
         if ($this->currentConfig['type'] == BackupType::DB) {
             $connection = Yii::$app->{$this->currentConfig['connection']};
-            Yii::createObject(DatabaseBackuper::class, [$this->model->getFullPath(), $connection, $this->dumperClass])->backup();
+            Yii::createObject(DatabaseBackuper::class, [$this->model->getFullPath(), $connection, $this->currentConfig['io']])->backup();
         }
 
         if ($this->currentConfig['type'] == BackupType::FILES) {
             $targetPath = Yii::getAlias($this->currentConfig['path']);
-            Yii::createObject(FolderBackupMaker::class, [$this->model->getFullPath(), $targetPath])->execute();
+            Yii::createObject(FolderBackupMaker::class, [$this->model->getFullPath(), $targetPath, $this->currentConfig['io']])->execute();
         }
 
         $this->updateBackupInfo();
@@ -136,7 +140,9 @@ class BackupCreate
      */
     private function createFileName()
     {
-        $extension = BackupType::DB ? Backup::EXT_TGZ : Backup::EXT_ZIP;
+        $extension = Backup::EXT_TGZ;
+        if ($this->model->type == BackupType::FILES)
+            $extension = Backup::EXT_ZIP;
         $date = date("Y-m-d_H-i-s");
         $rand = substr(md5(rand(0, 9999)), 0, 3);
         return "{$this->currentConfig['id']}_{$date}_{$rand}{$extension}";

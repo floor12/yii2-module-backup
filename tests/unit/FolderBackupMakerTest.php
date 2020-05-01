@@ -22,21 +22,21 @@ class FolderBackupMakerTest extends TestCase
     public function testCreateBackupFileExists()
     {
         $this->expectException(Exception::class);
-        $backupFilePath = Yii::getAlias('@app/tmp/sqlite.db');
+        $backupFilePath = Yii::getAlias('@app/data/sqlite.db');
         $creator = new FolderBackupMaker($backupFilePath, 'tmp');
     }
 
     public function testCreateBackupTargetNotExists()
     {
         $this->expectException(Exception::class);
-        $backupFilePath = Yii::getAlias('@app/tmp/backup.tgz');
+        $backupFilePath = Yii::getAlias('@app/data/backup.tgz');
         $creator = new FolderBackupMaker($backupFilePath, 'not-exists');
     }
 
 
     public function testCreateBackupSuccess()
     {
-        $backupFilePath = Yii::getAlias('@app/tmp/backup.tgz');
+        $backupFilePath = Yii::getAlias('@app/data/backup.tgz');
         $targetFolder = Yii::getAlias('@app/unit');
         $creator = new FolderBackupMaker($backupFilePath, $targetFolder);
         $this->assertTrue($creator->execute());
@@ -46,28 +46,25 @@ class FolderBackupMakerTest extends TestCase
 
     public function testCreateBackupSuccessWithIoNice()
     {
-        $backupFilePath = Yii::getAlias('@app/tmp/backup.tgz');
-        $testFilePath = Yii::getAlias('@app/tmp/test');
-        $targetFolder = Yii::getAlias('@app/unit');
+        $backupFilePath = Yii::getAlias('@app/data/backup.tgz');
+        $targetFolder = Yii::getAlias('@app/data/folder_for_backup');
 
-        $this->module->ionice = "touch {$testFilePath} && ";
+        $this->assertFileNotExists($backupFilePath);
         $creator = new FolderBackupMaker($backupFilePath, $targetFolder);
         $this->assertTrue($creator->execute());
-        $this->fileExists($backupFilePath);
-        $this->fileExists($testFilePath);
+        $this->assertFileExists($backupFilePath);
         unlink($backupFilePath);
-        unlink($testFilePath);
     }
 
     public function testCreateBackupSuccessWithChmod()
     {
-        $backupFilePath = Yii::getAlias('@app/tmp/backup.tgz');
-        @unlink($backupFilePath);
-        $targetFolder = Yii::getAlias('@app/unit');
-        $this->module->chmod = 0700;
+        $backupFilePath = Yii::getAlias('@app/data/backup.tgz');
+        $targetFolder = Yii::getAlias('@app/data/folder_for_backup');
+        Yii::$app->getModule('backup')->chmod = 0700;
+        $this->assertFileNotExists($backupFilePath);
         $creator = new FolderBackupMaker($backupFilePath, $targetFolder);
         $this->assertTrue($creator->execute());
-        $this->fileExists($backupFilePath);
+        $this->assertFileExists($backupFilePath);
         $this->assertEquals('0700', $this->readPerms($backupFilePath));
         @unlink($backupFilePath);
     }

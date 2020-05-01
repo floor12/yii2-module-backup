@@ -5,6 +5,7 @@ namespace floor12\backup\logic\processors;
 
 
 use floor12\backup\Exceptions\DsnParseException;
+use floor12\backup\models\IOPriority;
 use floor12\backup\Module;
 use Yii;
 use yii\db\Connection;
@@ -31,6 +32,7 @@ abstract class  DbProcessor
     protected $database;
     protected $host;
     protected $port;
+    protected $io;
     protected $password;
 
 
@@ -39,13 +41,15 @@ abstract class  DbProcessor
      * @param string $backupFilePath
      * @param Connection $connection
      */
-    public function __construct(string $backupFilePath, Connection $connection)
+    public function __construct(string $backupFilePath, Connection $connection, $io = IOPriority::IDLE)
     {
         $this->parseDsn($connection->dsn);
         $this->backupFilePath = $backupFilePath;
         $this->username = $connection->username;
         $this->password = $connection->password;
         $this->module = Yii::$app->getModule('backup');
+        $this->io = $io;
+        $this->init();
     }
 
     protected function parseDsn(string $dsn)
@@ -74,6 +78,11 @@ abstract class  DbProcessor
     }
 
     public function restore()
+    {
+
+    }
+
+    public function init()
     {
 
     }

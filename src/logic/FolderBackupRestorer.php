@@ -2,6 +2,8 @@
 
 namespace floor12\backup\logic;
 
+use floor12\backup\models\IOPriority;
+use Yii;
 use yii\base\Exception;
 
 class FolderBackupRestorer
@@ -21,7 +23,7 @@ class FolderBackupRestorer
      * @param string $targetFolder
      * @throws Exception
      */
-    public function __construct(string $backupFilePath, string $targetFolder)
+    public function __construct(string $backupFilePath, string $targetFolder, $io = IOPriority::IDLE)
     {
         if (!file_exists($backupFilePath))
             throw new Exception("Backup file don`t exist..");
@@ -31,6 +33,9 @@ class FolderBackupRestorer
 
         $this->backupFilePath = $backupFilePath;
         $this->targetFolder = $targetFolder;
+
+        $this->module = Yii::$app->getModule('backup');
+        $this->io = $io;
     }
 
     /**
@@ -39,8 +44,11 @@ class FolderBackupRestorer
      */
     public function execute()
     {
-        $command = "cd {$this->targetFolder} && unzip -o {$this->backupFilePath}";
+        $ionicePath = $this->module->binaries['ionice'];
+        $unzipPath = $this->module->binaries['unzip'];
+        $command = "cd {$this->targetFolder} && {$ionicePath} -c{$this->io} {$unzipPath} -o {$this->backupFilePath}";
         exec($command, $r);
+        var_dump($r);
         return true;
     }
 }

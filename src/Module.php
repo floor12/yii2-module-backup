@@ -33,12 +33,20 @@ class Module extends \yii\base\Module
      * @var array
      */
     public $authTokens = [];
-
+    /**
+     * @var string[]
+     */
     public $binaries = [
         'mysql' => '/usr/bin/mysql',
         'mysqldump' => '/usr/bin/mysqldump',
         'pg_dump' => '/usr/bin/pg_dump',
         'pg_restore' => '/usr/bin/pg_restore',
+        'gzip' => '/bin/gzip',
+        'zcat' => '/bin/zcat',
+        'ionice' => '/usr/bin/ionice',
+        'zip' => '/usr/bin/zip',
+        'unzip' => '/usr/bin/unzip',
+        'chmod' => '/bin/chmod',
     ];
     /**
      * @inheritdoc

@@ -9,6 +9,7 @@
 namespace floor12\backup\tests;
 
 use floor12\backup\models\BackupType;
+use floor12\backup\models\IOPriority;
 use floor12\backup\Module;
 use Yii;
 use yii\base\InvalidConfigException;
@@ -52,7 +53,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     {
         $backupModule = [
             'class' => 'floor12\backup\Module',
-            'backupFolder' => '@vendor/../tests/tmp',
+            'backupFolder' => '@vendor/../tests/_output',
             'configs' => [
                 [
                     'id' => 'mysql_db',
@@ -72,7 +73,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                     'id' => 'backup_test_folder',
                     'type' => BackupType::FILES,
                     'title' => 'TMP folder',
-                    'path' => '@app/tmp/_report',
+                    'path' => '@app/data/folder_for_backup',
                     'limit' => 0
                 ]
             ]
@@ -81,7 +82,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
         $mysql = [
             'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=mysql;port=5432;dbname=tester',
+            'dsn' => 'mysql:host=mysql;dbname=tester',
             'username' => 'tester',
             'password' => 'tester',
             'charset' => 'utf8',

@@ -23,7 +23,7 @@ class FolderBackupRestorerTest extends TestCase
     {
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Target folder don`t exist.');
-        $backupFilePath = Yii::getAlias('@app/data/test.tgz');
+        $backupFilePath = Yii::getAlias('@app/data/folder.zip');
         $targetFolder = Yii::getAlias('@app/no-exists');
         new FolderBackupRestorer($backupFilePath, $targetFolder);
     }
@@ -33,15 +33,15 @@ class FolderBackupRestorerTest extends TestCase
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Backup file don`t exist.');
         $backupFilePath = Yii::getAlias('@app/data/no-exist.tgz');
-        $targetFolder = Yii::getAlias('@app/tmp/');
+        $targetFolder = Yii::getAlias('@app/data/');
         new FolderBackupRestorer($backupFilePath, $targetFolder);
     }
 
     public function testRestoreSuccess()
     {
-        $fileFromBackup = Yii::getAlias('@app/tmp/test.txt');
-        $backupFilePath = Yii::getAlias('@app/data/test.tgz');
-        $targetFolder = Yii::getAlias('@app/tmp/');
+        $fileFromBackup = Yii::getAlias('@app/data/exists_test_file.txt');
+        $backupFilePath = Yii::getAlias('@app/data/folder.zip');
+        $targetFolder = Yii::getAlias('@app/data/');
         @unlink($fileFromBackup);
         $this->assertFileNotExists($fileFromBackup);
         $restorer = new FolderBackupRestorer($backupFilePath, $targetFolder);

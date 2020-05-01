@@ -71,12 +71,12 @@ class BackupRestoreTest extends TestCase
     public function testFolderSuccess()
     {
         $this->module->backupFolder = '@vendor/../tests/data';
-        $resultFilePath = Yii::getAlias('@app/tmp/_report/test.txt');
+        $resultFilePath = Yii::getAlias('@app/data/folder_for_backup/exists_test_file.txt');
         @unlink($resultFilePath);
         $this->assertFileNotExists($resultFilePath);
         $backup = new Backup([
             'status' => BackupStatus::DONE,
-            'filename' => 'test.tgz',
+            'filename' => 'folder.zip',
             'type' => BackupType::FILES,
             'config_id' => 'backup_test_folder'
         ]);

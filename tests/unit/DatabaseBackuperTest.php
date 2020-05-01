@@ -20,26 +20,11 @@ use yii\db\Connection;
 
 class DatabaseBackuperTest extends TestCase
 {
-//    protected function assertTableExists(string $tableName, Connection $connection)
-//    {
-//
-//
-//    }
-
-    protected function deleteTableSuccess(string $tableName, $connection)
-    {
-        try {
-            $connection->createCommand()->dropTable($tableName)->execute();
-        } catch (\yii\db\Exception $e) {
-            return false;
-        }
-        return true;
-    }
 
     public function testBackupFileExists()
     {
         $this->expectException(Exception::class);
-        $backupFilePath = Yii::getAlias('@app/tmp/sqlite.db'); // Just existing file
+        $backupFilePath = Yii::getAlias('@app/_output/sqlite.db'); // Just existing file
         $connection = Yii::$app->mysql;
         new DatabaseBackuper($backupFilePath, $connection);
         $backuper = new DatabaseBackuper($backupFilePath, $connection);
@@ -48,7 +33,7 @@ class DatabaseBackuperTest extends TestCase
 
 //    public function testCreateMysqlBackup()
 //    {
-//        $backupFilePath = Yii::getAlias('@app/tmp/mysql.tar');
+//        $backupFilePath = Yii::getAlias('@app/data/mysql.tar');
 //        $connection = Yii::$app->mysql;
 //        $backuper = new DatabaseBackuper($backupFilePath, $connection);
 //        $backuper->backup();
@@ -57,7 +42,7 @@ class DatabaseBackuperTest extends TestCase
 
     public function testCreatePostgresBackup()
     {
-        $backupFilePath = Yii::getAlias('@app/tmp/postgres');
+        $backupFilePath = Yii::getAlias('@app/_output/postgres');
         $connection = Yii::$app->postgres;
         $backuper = new DatabaseBackuper($backupFilePath, $connection);
         $backuper->backup();
@@ -65,7 +50,7 @@ class DatabaseBackuperTest extends TestCase
         @unlink($backupFilePath);
     }
 
-    public function testRestorePostgresBackup()
+    public function testRestorePostgresBackupEmptyBase()
     {
         $backupFilePath = Yii::getAlias('@app/data/postgres');
         /** @var $connection Connection */
@@ -76,5 +61,56 @@ class DatabaseBackuperTest extends TestCase
         $this->assertTrue($this->deleteTableSuccess('test_table', $connection));
     }
 
+    public function testRestorePostgresBackupNotEmptyBase()
+    {
+        $backupFilePath = Yii::getAlias('@app/data/postgres');
+        /** @var $connection Connection */
+        $connection = Yii::$app->postgres;
+        $connection->createCommand()->createTable('test_table', ['id' => 'int null'])->execute();
+        $backuper = new DatabaseBackuper($backupFilePath, $connection);
+        $backuper->restore();
+        $this->assertTrue($this->deleteTableSuccess('test_table', $connection));
+    }
 
+    public function testCreateMysqlBackup()
+    {
+        $backupFilePath = Yii::getAlias('@app/_output/mysql.sql.tgz');
+        $connection = Yii::$app->mysql;
+        $backuper = new DatabaseBackuper($backupFilePath, $connection);
+        $backuper->backup();
+        $this->assertFileExists($backupFilePath);
+        @unlink($backupFilePath);
+    }
+
+    public function testRestoreMysqlBackupEmptyBase()
+    {
+        $backupFilePath = Yii::getAlias('@app/data/mysql.sql.tgz');
+        /** @var $connection Connection */
+        $connection = Yii::$app->mysql;
+        $this->assertFalse($this->deleteTableSuccess('test_table', $connection));
+        $backuper = new DatabaseBackuper($backupFilePath, $connection);
+        $backuper->restore();
+        $this->assertTrue($this->deleteTableSuccess('test_table', $connection));
+    }
+
+    public function testRestoreMysqlBackupNotEmptyBase()
+    {
+        $backupFilePath = Yii::getAlias('@app/data/mysql.sql.tgz');
+        /** @var $connection Connection */
+        $connection = Yii::$app->mysql;
+        $connection->createCommand()->createTable('test_table', ['id' => 'int null'])->execute();
+        $backuper = new DatabaseBackuper($backupFilePath, $connection);
+        $backuper->restore();
+        $this->assertTrue($this->deleteTableSuccess('test_table', $connection));
+    }
+
+    protected function deleteTableSuccess(string $tableName, $connection)
+    {
+        try {
+            $connection->createCommand()->dropTable($tableName)->execute();
+        } catch (\yii\db\Exception $e) {
+            return false;
+        }
+        return true;
+    }
 }

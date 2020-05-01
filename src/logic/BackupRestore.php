@@ -12,6 +12,7 @@ use ErrorException;
 use Exception;
 use floor12\backup\models\Backup;
 use floor12\backup\models\BackupType;
+use floor12\backup\models\IOPriority;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\db\Connection;
@@ -29,7 +30,7 @@ class BackupRestore
 {
 
     private $_configs;
-    private $_currentConfig;
+    private $currentConfig;
     private $_model;
     private $_connection;
     private $backupFilePath;
@@ -49,10 +50,10 @@ class BackupRestore
 
         foreach ($this->_configs as $config) {
             if (isset($config['id']) && $config['id'] == $model->config_id)
-                $this->_currentConfig = $config;
+                $this->currentConfig = $config;
         }
 
-        if (!$this->_currentConfig)
+        if (!$this->currentConfig)
             throw new ErrorException("Config `{$model->config_id}` not found.");
 
         $this->_model = $model;
@@ -67,14 +68,17 @@ class BackupRestore
      */
     public function run()
     {
-        if ($this->_currentConfig['type'] == BackupType::DB) {
-            $this->_connection = Yii::$app->{$this->_currentConfig['connection']};
-            return Yii::createObject(DatabaseBackuper::class, [$this->backupFilePath, $this->_connection])->restore();
+        if (empty($this->currentConfig['io']))
+            $this->currentConfig['io'] = IOPriority::IDLE;
+
+        if ($this->currentConfig['type'] == BackupType::DB) {
+            $this->_connection = Yii::$app->{$this->currentConfig['connection']};
+            return Yii::createObject(DatabaseBackuper::class, [$this->backupFilePath, $this->_connection, $this->currentConfig['io']])->restore();
         }
 
-        if ($this->_currentConfig['type'] == BackupType::FILES) {
-            $targetFolder = Yii::getAlias($this->_currentConfig['path']);
-            return Yii::createObject(FolderBackupRestorer::class, [$this->backupFilePath, $targetFolder])->execute();
+        if ($this->currentConfig['type'] == BackupType::FILES) {
+            $targetFolder = Yii::getAlias($this->currentConfig['path']);
+            return Yii::createObject(FolderBackupRestorer::class, [$this->backupFilePath, $targetFolder, $this->currentConfig['io']])->execute();
         }
     }
 }

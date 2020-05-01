@@ -28,4 +28,7 @@ return [
     'Backup config is not found.' => 'Конфигурация бекапа не найдена.',
     'Backup is deleted.' => 'Бекап удален',
     'Run backup' => 'Запустить бекап',
+    'Realtime' => 'Наивысший',
+    'None' => 'Нет',
+    'Idle' => 'Наименьший',
 ];
