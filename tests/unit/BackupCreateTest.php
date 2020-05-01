@@ -44,11 +44,9 @@ class BackupCreateTest extends TestCase
     {
         Backup::deleteAll();
         $this->assertEquals(0, Backup::find()->count());
-        $config_id = 'main_db';
-        $dumperClass = MysqldumpMock::class;
-        $creator = new BackupCreate($config_id, $dumperClass);
+        $config_id = 'postgres_db';
+        $creator = new BackupCreate($config_id);
         $creator->run();
-
         $backup = Backup::find()->one();
         $this->assertTrue(is_object($backup));
         $this->assertEquals(BackupType::DB, $backup->type);
@@ -60,7 +58,7 @@ class BackupCreateTest extends TestCase
     {
         Backup::deleteAll();
         $this->assertEquals(0, Backup::find()->count());
-        $config_id = 'tmp_folder';
+        $config_id = 'backup_test_folder';
         $creator = new BackupCreate($config_id);
         $creator->run();
 
@@ -68,7 +66,7 @@ class BackupCreateTest extends TestCase
         $this->assertTrue(is_object($backup));
         $this->assertEquals(BackupType::FILES, $backup->type);
         $this->assertFileExists($backup->getFullPath());
-       // @unlink($backup->getFullPath());
+        // @unlink($backup->getFullPath());
     }
 
     public function testSaveAllOldBackups()
@@ -83,7 +81,7 @@ class BackupCreateTest extends TestCase
     public function testSaveOnlyOneBackup()
     {
         Backup::deleteAll();
-        Yii::$app->getModule('backup')->configs[1]['limit'] = 1;
+        Yii::$app->getModule('backup')->configs[2]['limit'] = 1;
 
         $this->assertEquals(0, Backup::find()->count());
         $this->create5TestsBackups();
@@ -93,7 +91,7 @@ class BackupCreateTest extends TestCase
     public function testSaveThreeBackups()
     {
         Backup::deleteAll();
-        Yii::$app->getModule('backup')->configs[1]['limit'] = 3;
+        Yii::$app->getModule('backup')->configs[2]['limit'] = 3;
 
         $this->assertEquals(0, Backup::find()->count());
         $this->create5TestsBackups();
@@ -102,7 +100,7 @@ class BackupCreateTest extends TestCase
 
     protected function create5TestsBackups()
     {
-        $config_id = 'tmp_folder';
+        $config_id = 'backup_test_folder';
         $creator = new BackupCreate($config_id);
         for ($i = 0; $i < 5; $i++)
             $creator->run();

@@ -58,26 +58,14 @@ class BackupRestoreTest extends TestCase
 
         $backup = new Backup([
             'status' => BackupStatus::DONE,
-            'filename' => 'test.zip',
+            'filename' => 'postgres',
             'type' => BackupType::DB,
-            'config_id' => 'main_db'
+            'config_id' => 'postgres_db'
         ]);
         $restorer = new BackupRestore($backup);
         $restorer->run();
-
-        $databaseName = Yii::$app->db->databaseName;
-
-        $commandsToCheck = [
-            'SELECT DATABASE()',
-            "DROP DATABASE `{$databaseName}`",
-            "CREATE DATABASE `{$databaseName}`",
-            "USE `{$databaseName}`",
-            "/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;",
-        ];
-
-        foreach ($commandsToCheck as $command) {
-            $this->assertTrue(in_array($command, Yii::$app->db->sql));
-        }
+        $dropResult = Yii::$app->postgres->createCommand()->dropTable('test_table')->execute();
+        $this->assertEquals(0, $dropResult);
     }
 
     public function testFolderSuccess()
@@ -90,7 +78,7 @@ class BackupRestoreTest extends TestCase
             'status' => BackupStatus::DONE,
             'filename' => 'test.tgz',
             'type' => BackupType::FILES,
-            'config_id' => 'tmp_folder'
+            'config_id' => 'backup_test_folder'
         ]);
         $restorer = new BackupRestore($backup);
         $restorer->run();

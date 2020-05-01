@@ -33,6 +33,13 @@ class Module extends \yii\base\Module
      * @var array
      */
     public $authTokens = [];
+
+    public $binaries = [
+        'mysql' => '/usr/bin/mysql',
+        'mysqldump' => '/usr/bin/mysqldump',
+        'pg_dump' => '/usr/bin/pg_dump',
+        'pg_restore' => '/usr/bin/pg_restore',
+    ];
     /**
      * @inheritdoc
      */
@@ -80,18 +87,6 @@ class Module extends \yii\base\Module
     }
 
     /**
-     * @param string $config_id
-     * @return bool
-     */
-    public function checkConfig(string $config_id)
-    {
-        foreach (Yii::$app->getModule('backup')->configs as $config)
-            if ($config['id'] == $config_id)
-                return true;
-        return false;
-    }
-
-    /**
      * @throws NotSupportedException
      * @throws Exception
      */
@@ -100,18 +95,8 @@ class Module extends \yii\base\Module
         $dbFileName = $this->backupRootPath . '/sqlite.db';
         $this->connection = new Connection(['dsn' => 'sqlite:' . $dbFileName]);
         $this->connection->getSchema();
-        $this->connection->createCommand('
-            CREATE TABLE IF NOT EXISTS backup (
-              id INTEGER PRIMARY KEY,
-              date DATETIME NOT NULL,
-              status INTEGER NOT NULL DEFAULT 0,
-              type INTEGER NOT NULL,
-              config_id STRING(255) NOT NULL,
-              config_name STRING(255) NULL,
-              filename STRING(255) NULL,
-              size INTEGER NOT NULL DEFAULT 0              
-            );            
-        ')->execute();
+        $sql = file_get_contents(__DIR__ . '/migration/sqlite.backup.sql');
+        $this->connection->createCommand($sql)->execute();
     }
 
     /**
@@ -128,6 +113,18 @@ class Module extends \yii\base\Module
                 'app.f12.backup' => 'backup.php',
             ],
         ];
+    }
+
+    /**
+     * @param string $config_id
+     * @return bool
+     */
+    public function checkConfig(string $config_id)
+    {
+        foreach (Yii::$app->getModule('backup')->configs as $config)
+            if ($config['id'] == $config_id)
+                return true;
+        return false;
     }
 
 }

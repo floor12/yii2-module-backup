@@ -12,7 +12,6 @@ use ErrorException;
 use floor12\backup\models\Backup;
 use floor12\backup\models\BackupStatus;
 use floor12\backup\models\BackupType;
-use Ifsnop\Mysqldump\Mysqldump;
 use Throwable;
 use Yii;
 use yii\base\InvalidConfigException as InvalidConfigExceptionAlias;
@@ -42,19 +41,33 @@ class BackupCreate
      * @throws InvalidConfigExceptionAlias
      * @throws ErrorException
      */
-    public function __construct(string $config_id, string $dumperClass = Mysqldump::class)
+    public function __construct(string $config_id)
     {
-        $this->dumperClass = $dumperClass;
+        $this->loadConfigs();
+        $this->setUpActiveConfig($config_id);
+    }
+
+    /**
+     * @throws InvalidConfigExceptionAlias
+     */
+    protected function loadConfigs()
+    {
         $this->configs = Yii::$app->getModule('backup')->configs;
 
         if (!is_array($this->configs) || !sizeof($this->configs))
             throw new InvalidConfigExceptionAlias('Backup module need to be configured with `config array`');
+    }
 
+    /**
+     * @param string $config_id
+     * @throws InvalidConfigExceptionAlias
+     */
+    protected function setUpActiveConfig(string $config_id)
+    {
         foreach ($this->configs as $config) {
             if (isset($config['id']) && $config['id'] == $config_id)
                 $this->currentConfig = $config;
         }
-
         if (!$this->currentConfig)
             throw new InvalidConfigExceptionAlias("Config `{$config_id}` not found.");
     }
@@ -68,12 +81,11 @@ class BackupCreate
     public function run()
     {
         $this->deleteOldFiles();
-
         $this->createBackupItem();
 
         if ($this->currentConfig['type'] == BackupType::DB) {
             $connection = Yii::$app->{$this->currentConfig['connection']};
-            Yii::createObject(DatabaseBackupMaker::class, [$this->model->getFullPath(), $connection, $this->dumperClass])->execute();
+            Yii::createObject(DatabaseBackuper::class, [$this->model->getFullPath(), $connection, $this->dumperClass])->backup();
         }
 
         if ($this->currentConfig['type'] == BackupType::FILES) {
@@ -81,7 +93,7 @@ class BackupCreate
             Yii::createObject(FolderBackupMaker::class, [$this->model->getFullPath(), $targetPath])->execute();
         }
 
-        $this->finalize();
+        $this->updateBackupInfo();
     }
 
     /**
@@ -133,7 +145,7 @@ class BackupCreate
     /**
      * @return bool
      */
-    protected function finalize()
+    protected function updateBackupInfo()
     {
         $this->model->status = BackupStatus::DONE;
         $this->model->updateFileSize();

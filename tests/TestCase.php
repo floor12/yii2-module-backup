@@ -17,10 +17,6 @@ use yii\console\Application;
 abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
     /**
-     * @var string Path to sqlite database for tests
-     */
-    public $sqlite = 'tests/sqlite.db';
-    /**
      * @var Module
      */
     public $module;
@@ -37,52 +33,6 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * Adds backup module to tmp app
-     */
-    protected function setApp()
-    {
-        $backupModule = [
-            'class' => 'floor12\backup\Module',
-            'backupFolder' => '@vendor/../tests/tmp',
-            'configs' => [
-                [
-                    'id' => 'main_db',
-                    'type' => BackupType::DB,
-                    'title' => 'Main database',
-                    'connection' => 'db',
-                    'limit' => 0
-                ],
-                [
-                    'id' => 'tmp_folder',
-                    'type' => BackupType::FILES,
-                    'title' => 'TMP folder',
-                    'path' => '@app/tmp/_report',
-                    'limit' => 0
-                ]
-            ]
-        ];
-        Yii::$app->setModule('backup', $backupModule);
-
-        $db = [
-            'class' => ConnectionMock::class,
-            'databaseName' => "dataBaseName",
-        ];
-        Yii::$app->set('db', $db);
-
-        $this->module = Yii::$app->getModule('backup');
-    }
-
-
-    /**
-     * @inheritdoc
-     */
-    protected function tearDown()
-    {
-        $this->destroyApplication();
-        parent::tearDown();
-    }
-
-    /**
      * @throws InvalidConfigException
      */
     protected function mockApplication()
@@ -95,6 +45,69 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         ]);
     }
 
+    /**
+     * Adds backup module to tmp app
+     */
+    protected function setApp()
+    {
+        $backupModule = [
+            'class' => 'floor12\backup\Module',
+            'backupFolder' => '@vendor/../tests/tmp',
+            'configs' => [
+                [
+                    'id' => 'mysql_db',
+                    'type' => BackupType::DB,
+                    'title' => 'Mysql Database',
+                    'connection' => 'mysql',
+                    'limit' => 0
+                ],
+                [
+                    'id' => 'postgres_db',
+                    'type' => BackupType::DB,
+                    'title' => 'PostgresQL database',
+                    'connection' => 'postgres',
+                    'limit' => 0
+                ],
+                [
+                    'id' => 'backup_test_folder',
+                    'type' => BackupType::FILES,
+                    'title' => 'TMP folder',
+                    'path' => '@app/tmp/_report',
+                    'limit' => 0
+                ]
+            ]
+        ];
+        Yii::$app->setModule('backup', $backupModule);
+
+        $mysql = [
+            'class' => 'yii\db\Connection',
+            'dsn' => 'mysql:host=mysql;port=5432;dbname=tester',
+            'username' => 'tester',
+            'password' => 'tester',
+            'charset' => 'utf8',
+        ];
+        Yii::$app->set('mysql', $mysql);
+
+        $postgres = [
+            'class' => 'yii\db\Connection',
+            'dsn' => 'pgsql:host=postgres;port=5432;dbname=tester',
+            'username' => 'tester',
+            'password' => 'tester',
+            'charset' => 'utf8',
+        ];
+        Yii::$app->set('postgres', $postgres);
+
+        $this->module = Yii::$app->getModule('backup');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function tearDown()
+    {
+        $this->destroyApplication();
+        parent::tearDown();
+    }
 
     /**
      * Destroy test application

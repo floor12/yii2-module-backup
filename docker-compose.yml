@@ -1,0 +1,26 @@
+version: '2'
+services:
+  mysql:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: tester
+      MYSQL_DATABASE: tester
+      MYSQL_USER: tester
+      MYSQL_PASSWORD: tester
+    ports:
+      - 3306:3306
+  postgres:
+    image: postgres:11
+    environment:
+      POSTGRES_USER: tester
+      POSTGRES_DB: tester
+      POSTGRES_PASSWORD: tester
+    ports:
+      - 5432:5432
+  php:
+    image: registry.gitlab.com/floor12/images:basic73
+    volumes:
+      - ./tests/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+      - ./:/app:delegated
+
+

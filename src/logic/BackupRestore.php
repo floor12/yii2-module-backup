@@ -69,7 +69,7 @@ class BackupRestore
     {
         if ($this->_currentConfig['type'] == BackupType::DB) {
             $this->_connection = Yii::$app->{$this->_currentConfig['connection']};
-            return Yii::createObject(DatabaseBackupRestorer::class, [$this->backupFilePath, $this->_connection])->execute();
+            return Yii::createObject(DatabaseBackuper::class, [$this->backupFilePath, $this->_connection])->restore();
         }
 
         if ($this->_currentConfig['type'] == BackupType::FILES) {

@@ -10,7 +10,7 @@ use floor12\backup\logic\processors\PostgresProcessor;
 use yii\base\Exception;
 use yii\db\Connection;
 
-class DatabaseBackupRestorer
+class DatabaseBackuper
 {
     /**
      * @var array
@@ -23,6 +23,10 @@ class DatabaseBackupRestorer
      * @var DbProcessor
      */
     protected $dbProcessor;
+    /**
+     * @var string
+     */
+    protected $backupFilePath;
 
     /**
      * DatabaseBackupMaker constructor.
@@ -32,9 +36,7 @@ class DatabaseBackupRestorer
      */
     public function __construct(string $backupFilePath, Connection $connection)
     {
-        if (file_exists($backupFilePath))
-            throw new Exception("Backup file exists.");
-
+        $this->backupFilePath = $backupFilePath;
         $currentProcessorClassname = $this->dbProcessors[$connection->driverName];
         $this->dbProcessor = new $currentProcessorClassname($backupFilePath, $connection);
     }
@@ -45,6 +47,17 @@ class DatabaseBackupRestorer
      */
     public function backup()
     {
+        if (file_exists($this->backupFilePath))
+            throw new Exception("Backup file exists.");
         $this->dbProcessor->backup();
+    }
+
+    /**
+     * @return bool
+     * @throws \Exception
+     */
+    public function restore()
+    {
+        $this->dbProcessor->restore();
     }
 }
