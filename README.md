@@ -9,8 +9,13 @@
 
 *Этот файл доступен на [русском языке](README_RU.md).*
 
-This module helps to create and restore backups of databases and files stored on disk. It has web-interface, console commands, and REST-API for remote control. It also supports io-priority settings and has flexible configuration options. To work independent of the
+This module helps to create and restore backups of databases and files stored on disk. It has web-interface, console commands, and REST-API for remote control. 
+It also supports io-priority settings and has flexible configuration options. To work independently of the
  application database, this module uses its sqlite database in the backup folder.
+ 
+ Creating and restoring database backups is possible for [MySQL](https://www.mysql.com/) and [PostgreSQL] (https://www.postgresql.org/). 
+ To do this, you must have the console client installed on the system for your database type. After a series of experiments, it became clear that creating and restoring databases
+   best using their native clients.
  
 ### i18n
 Now, this module supports English and Russian languages.
@@ -33,49 +38,54 @@ or add this to the `require` section of your composer.json.
  After that, include minimal module configuration in `modules` section of application config:
  ```php  
  'modules' => [
-             'backup' => [
-                 'class' => 'floor12\backup\Module',
-                 'administratorRoleName' => '@',
-                 'configs' => [
-                     [
-                         'id' => 'main_db',
-                         'type' => BackupType::DB,
-                         'title' => 'Main database',
-                         'connection' => 'db',
-                         'limit' => 10
-                     ],
-                     [
-                         'id' => 'main_storage',
-                         'type' => BackupType::FILES,
-                         'title' => 'TMP folder',
-                         'path' => '@app/tmp',
-                         'limit' => 2
-                     ]
-                 ]
-             ]
-             ],
-         ],
+            'backup' =>  [
+                'class' => 'floor12\backup\Module',
+                'backupFolder' => '/mnt/raid10/backups',
+                'administratorRoleName' => '@',
+                'configs' => [
+                    'mysql_db' => [
+                        'type' => BackupType::DB,
+                        'title' => 'Mysql Database',
+                        'connection' => 'db',  // component from app config, usually 'db' 
+                        'limit' => 0
+                    ],
+                    'postgres_db' => [
+                        'type' => BackupType::DB,
+                        'title' => 'PostgresQL database',
+                        'connection' => 'example_connection_name', // component from app config, usually 'db'
+                        'io' => IOPriority::REALTIME,
+                        'limit' => 0
+                    ],
+                    'user_files_backup' => [
+                        'type' => BackupType::FILES,
+                        'title' => 'User uploaded files',
+                        'path' => '@app/user_files',
+                        'io' => IOPriority::IDLE,
+                        'limit' => 0
+                    ]
+                ]
+            ]
+        ]
      ...
  ```
 
 These parameters is possible to set up:
 - `administratorRoleName` - role to access web controller
-- `backupFolder` - path alias to the place where backups are stored (default is @app/backups)
+- `backupFolder` - path or alias to the place where the backups are stored (default is @app/backups)
 - `chmod` -  if this param has value, the new backup file will change mode after creation
 - `authTokens` - array of auth tokens to use REST-API of the module
-- `ionice` - the value of this param will be placed before ZIP console command in case of disk backup (for example it's possible to put
- `iotince
- -c3` inside this param to run backup creation with IDLE disk i/o priority)
  - `adminLayout` - it will change default `main` layout to something you need (if your admin panel has different base layout)
  
- And the main and required param is`configs` - its an array of your backup items (folders and databases).
- Each backup items mast have this elements to set:
- - `id` - backup identifier, contains only letters and numbers without space
- - `type` - type backup: disk or database
- - `title` - human-readable backup item title to show in the admin interface
- - `limit` - how many backup copies keep before delete (`0` - never delete old copies)
- - `connection` - in case of database backup, connection name in Yii2 config 
- - `path` - in case of disk backup, the path to store backup files
+ And the main and required param is `configs` - it`s an associative array of your backup configurations (folders and databases).
+ Each backup item mast have these elements to set:
+ -  a backup identifier as an array key, contains only letters and numbers without space;
+ - `type` - type backup: disk or database;
+ - `title` - human-readable backup item title to show in the admin interface;
+ - `limit` - how many backup copies keep before delete (`0` - never delete old copies);
+ - `io` - input/output hdd priority, use `floor12\backup\models\IOPriority` constants to keep it confabulated. Default value is
+  `IOPriority::IDLE`;
+ - `connection` - in case of database backup, connection name in Yii2 config; 
+ - `path` - in case of disk backup, the path to store backup files;
  
     
 ## Usage
@@ -89,7 +99,7 @@ This module has a web controller to work with backups. Go to `backup/admin` or `
  
 *To list all existing backups run*
  ```bash
-$ ./yii backup/console/index>
+$ ./yii backup/console/index
 ```
 
 *To create config run*
