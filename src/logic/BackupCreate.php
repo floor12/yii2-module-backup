@@ -9,6 +9,8 @@
 namespace floor12\backup\logic;
 
 use ErrorException;
+use floor12\backup\Exceptions\ConfigurationNotFoundException;
+use floor12\backup\Exceptions\ModuleNotConfiguredException;
 use floor12\backup\models\Backup;
 use floor12\backup\models\BackupStatus;
 use floor12\backup\models\BackupType;
@@ -27,13 +29,13 @@ use yii\db\StaleObjectException;
  */
 class BackupCreate
 {
-
-    /**
-     * @var string
-     */
-    protected $dumperClass;
-    private $configs;
-    private $currentConfig;
+    /** @var array */
+    private $configs = [];
+    /** @var array */
+    private $currentConfig = [];
+    /** @var string */
+    private $config_id;
+    /** @var Backup */
     private $model;
 
     /**
@@ -44,33 +46,30 @@ class BackupCreate
      */
     public function __construct(string $config_id)
     {
+        $this->config_id = $config_id;
         $this->loadConfigs();
-        $this->setUpActiveConfig($config_id);
+        $this->setUpActiveConfig();
     }
 
     /**
-     * @throws InvalidConfigExceptionAlias
+     * @throws ModuleNotConfiguredException
      */
     protected function loadConfigs()
     {
         $this->configs = Yii::$app->getModule('backup')->configs;
-
         if (!is_array($this->configs) || !sizeof($this->configs))
-            throw new InvalidConfigExceptionAlias('Backup module need to be configured with `config array`');
+            throw new ModuleNotConfiguredException('Backup configs is empty');
     }
 
     /**
      * @param string $config_id
-     * @throws InvalidConfigExceptionAlias
+     * @throws ConfigurationNotFoundException
      */
-    protected function setUpActiveConfig(string $config_id)
+    protected function setUpActiveConfig()
     {
-        foreach ($this->configs as $config) {
-            if (isset($config['id']) && $config['id'] == $config_id)
-                $this->currentConfig = $config;
-        }
-        if (!$this->currentConfig)
-            throw new InvalidConfigExceptionAlias("Config `{$config_id}` not found.");
+        if (!is_array($this->configs[$this->config_id]))
+            throw new ConfigurationNotFoundException("Configuration `{$this->config_id}` not found.");
+        $this->currentConfig = $this->configs[$this->config_id];
     }
 
     /**
@@ -110,7 +109,7 @@ class BackupCreate
         if (!isset($this->currentConfig['limit']) || empty($this->currentConfig['limit']))
             return false;
         $backups = Backup::find()
-            ->where(['config_id' => $this->currentConfig['id']])
+            ->where(['config_id' => $this->config_id])
             ->orderBy('date DESC')
             ->offset($this->currentConfig['limit'] - 1)
             ->all();
@@ -129,7 +128,7 @@ class BackupCreate
         $this->model->date = date('Y-m-d H:i:s');
         $this->model->status = BackupStatus::IN_PROCESS;
         $this->model->type = $this->currentConfig['type'];
-        $this->model->config_id = $this->currentConfig['id'];
+        $this->model->config_id = $this->config_id;
         $this->model->config_name = $this->currentConfig['title'];
         $this->model->filename = $this->createFileName();
         return $this->model->save();
@@ -145,7 +144,7 @@ class BackupCreate
             $extension = Backup::EXT_ZIP;
         $date = date("Y-m-d_H-i-s");
         $rand = substr(md5(rand(0, 9999)), 0, 3);
-        return "{$this->currentConfig['id']}_{$date}_{$rand}{$extension}";
+        return "{$this->config_id}_{$date}_{$rand}{$extension}";
     }
 
     /**

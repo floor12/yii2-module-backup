@@ -12,31 +12,30 @@ namespace floor12\backup\tests\unit;
  * This is a tests for Backup class
  */
 
+use floor12\backup\Exceptions\ConfigurationNotFoundException;
+use floor12\backup\Exceptions\ModuleNotConfiguredException;
 use floor12\backup\logic\BackupCreate;
 use floor12\backup\models\Backup;
 use floor12\backup\models\BackupType;
-use floor12\backup\tests\MysqldumpMock;
 use floor12\backup\tests\TestCase;
 use Yii;
-use yii\base\InvalidConfigException;
 
 class BackupCreateTest extends TestCase
 {
 
     public function testEmptyConfigs()
     {
-        $this->expectException(InvalidConfigException::class);
+        $this->expectException(ModuleNotConfiguredException::class);
         $this->module->configs = [];
-        $this->expectExceptionMessage('Backup module need to be configured with `config array`');
+//        $this->expectExceptionMessage('Backup module need to be configured with `config array`');
         $backupFilePath = Yii::getAlias('@app/tmp/sqlite.db');
         $creator = new BackupCreate('main');
     }
 
     public function testWrongConfigName()
     {
-        $this->expectException(InvalidConfigException::class);
+        $this->expectException(ConfigurationNotFoundException::class);
         $config_id = 'wrong';
-        $this->expectExceptionMessage("Config `{$config_id}` not found.");
         $creator = new BackupCreate($config_id);
     }
 
@@ -81,7 +80,7 @@ class BackupCreateTest extends TestCase
     public function testSaveOnlyOneBackup()
     {
         Backup::deleteAll();
-        Yii::$app->getModule('backup')->configs[2]['limit'] = 1;
+        Yii::$app->getModule('backup')->configs['backup_test_folder']['limit'] = 1;
 
         $this->assertEquals(0, Backup::find()->count());
         $this->create5TestsBackups();
@@ -91,7 +90,7 @@ class BackupCreateTest extends TestCase
     public function testSaveThreeBackups()
     {
         Backup::deleteAll();
-        Yii::$app->getModule('backup')->configs[2]['limit'] = 3;
+        Yii::$app->getModule('backup')->configs['backup_test_folder']['limit'] = 3;
 
         $this->assertEquals(0, Backup::find()->count());
         $this->create5TestsBackups();

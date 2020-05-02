@@ -19,7 +19,7 @@ use yii\db\ActiveRecord;
  * @property integer $status
  * @property integer $type
  * @property integer $size
- * @property integer $config_id
+ * @property string $config_id
  * @property string $config_name
  * @property string $date
  * @property string $filename

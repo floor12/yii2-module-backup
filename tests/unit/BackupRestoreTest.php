@@ -13,13 +13,13 @@ namespace floor12\backup\tests\unit;
  */
 
 use ErrorException;
+use floor12\backup\Exceptions\ModuleNotConfiguredException;
 use floor12\backup\logic\BackupRestore;
 use floor12\backup\models\Backup;
 use floor12\backup\models\BackupStatus;
 use floor12\backup\models\BackupType;
 use floor12\backup\tests\TestCase;
 use Yii;
-use yii\base\InvalidConfigException;
 
 class BackupRestoreTest extends TestCase
 {
@@ -32,9 +32,8 @@ class BackupRestoreTest extends TestCase
             'type' => BackupType::FILES,
             'config_id' => 'tmp_folder'
         ]);
-        $this->expectException(InvalidConfigException::class);
+        $this->expectException(ModuleNotConfiguredException::class);
         $this->module->configs = [];
-        $this->expectExceptionMessage('Backup module need to be configured with `config array`');
         $restorer = new BackupRestore($backup);
     }
 
@@ -48,13 +47,14 @@ class BackupRestoreTest extends TestCase
             'config_id' => $config_id
         ]);
         $this->expectException(ErrorException::class);
-        $this->expectExceptionMessage("Config `{$config_id}` not found.");
+//        $this->expectExceptionMessage("Config `{$config_id}` not found.");
         $restorer = new BackupRestore($backup);
     }
 
     public function testDatabaseSuccess()
     {
         $this->module->backupFolder = '@vendor/../tests/data';
+        $this->module->backupRootPath = Yii::getAlias('@vendor/../tests/data');
 
         $backup = new Backup([
             'status' => BackupStatus::DONE,
@@ -71,6 +71,8 @@ class BackupRestoreTest extends TestCase
     public function testFolderSuccess()
     {
         $this->module->backupFolder = '@vendor/../tests/data';
+        $this->module->backupRootPath = Yii::getAlias('@vendor/../tests/data');
+
         $resultFilePath = Yii::getAlias('@app/data/folder_for_backup/exists_test_file.txt');
         @unlink($resultFilePath);
         $this->assertFileNotExists($resultFilePath);

@@ -55,25 +55,24 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
             'class' => 'floor12\backup\Module',
             'backupFolder' => '@vendor/../tests/_output',
             'configs' => [
-                [
-                    'id' => 'mysql_db',
+                'mysql_db' => [
                     'type' => BackupType::DB,
                     'title' => 'Mysql Database',
-                    'connection' => 'mysql',
+                    'connection' => 'db',
                     'limit' => 0
                 ],
-                [
-                    'id' => 'postgres_db',
+                'postgres_db' => [
                     'type' => BackupType::DB,
                     'title' => 'PostgresQL database',
-                    'connection' => 'postgres',
+                    'connection' => 'db2',
+                    'io' => IOPriority::REALTIME,
                     'limit' => 0
                 ],
-                [
-                    'id' => 'backup_test_folder',
+                'backup_test_folder' => [
                     'type' => BackupType::FILES,
                     'title' => 'TMP folder',
                     'path' => '@app/data/folder_for_backup',
+                    'io' => IOPriority::IDLE,
                     'limit' => 0
                 ]
             ]
