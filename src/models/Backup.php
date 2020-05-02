@@ -28,8 +28,9 @@ use yii\db\ActiveRecord;
 class Backup extends ActiveRecord
 {
 
-    const EXT_TGZ = '.tgz';
-    const EXT_ZIP = '.zip';
+    const EXT_DUMP = 'dump';
+    const EXT_TGZ = 'sql.tgz';
+    const EXT_ZIP = 'zip';
 
     public static function getDb()
     {

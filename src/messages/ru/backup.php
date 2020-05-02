@@ -11,8 +11,9 @@ return [
     'Date' => 'Дата',
     'Status' => 'Статус',
     'Backup type' => 'Тип бекапа',
-    'Config' => 'Конфиг',
-    'Config name' => 'Конфиг',
+    'Config' => 'Конфигурация',
+    'Config name' => 'Конфигурация',
+    'File name' => 'Имя файла',
     'File name' => 'Имя файла',
     'Size' => 'Размер',
     'Restore' => 'Восстановить',
@@ -34,4 +35,5 @@ return [
     'None' => 'Нет',
     'Idle' => 'Наименьший',
     'Import backup' => 'Импортировать бекап',
+    'File to import' => 'Файл для импорта',
 ];

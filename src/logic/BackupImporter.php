@@ -18,6 +18,8 @@ class BackupImporter
     protected $model;
     /** @var string */
     protected $absoluteFilePath;
+    /** @var string|null */
+    protected $fileName;
     /** @var Module */
     protected $module;
     /** @var array */
@@ -28,7 +30,7 @@ class BackupImporter
      * @param string $config_id
      * @param string $absoluteFilePath
      */
-    public function __construct(string $config_id, string $absoluteFilePath)
+    public function __construct(string $config_id, string $absoluteFilePath, string $fileName = null)
     {
         $this->module = Yii::$app->getModule('backup');
 
@@ -45,6 +47,7 @@ class BackupImporter
         $this->model = new Backup();
         $this->model->config_id = $config_id;
         $this->absoluteFilePath = $absoluteFilePath;
+        $this->fileName = $fileName;
     }
 
     /**
@@ -64,7 +67,7 @@ class BackupImporter
         $this->model->config_name = $this->currentConfig['title'];
         $this->model->size = filesize($this->absoluteFilePath);
         $this->model->date = date('Y-m-d H:i:s');
-        $this->model->filename = basename($this->absoluteFilePath);
+        $this->model->filename = $this->fileName ?: basename($this->absoluteFilePath);
         $this->model->status = $this->copyFile() ? BackupStatus::IMPORTED : BackupStatus::IMPORT_ERROR;
     }
 

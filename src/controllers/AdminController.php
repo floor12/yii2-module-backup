@@ -12,14 +12,17 @@ use floor12\backup\logic\BackupCreate;
 use floor12\backup\logic\BackupRestore;
 use floor12\backup\models\Backup;
 use floor12\backup\models\BackupFilter;
+use floor12\backup\models\ImportForm;
 use Throwable;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\db\StaleObjectException;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
+use yii\web\BadRequestHttpException;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
+use yii\web\UploadedFile;
 
 class AdminController extends Controller
 {
@@ -124,6 +127,19 @@ class AdminController extends Controller
     }
 
     /**
+     * @param $config_id
+     * @return string
+     */
+    public function actionImport()
+    {
+        $model = new ImportForm();
+        $model->load(Yii::$app->request->post());
+        $model->file = UploadedFile::getInstance($model, 'file');
+        if (!$model->import())
+            throw new BadRequestHttpException(print_r($model->errors, true));
+    }
+
+    /**
      * @param int $id
      * @throws NotFoundHttpException
      */
@@ -133,4 +149,5 @@ class AdminController extends Controller
         if (!$this->model)
             throw new NotFoundHttpException(Yii::t('app.f12.backup', 'Backup is not found.'));
     }
+
 }

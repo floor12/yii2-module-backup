@@ -18,6 +18,7 @@ use floor12\backup\models\IOPriority;
 use Throwable;
 use Yii;
 use yii\base\InvalidConfigException as InvalidConfigExceptionAlias;
+use yii\db\Connection;
 use yii\db\StaleObjectException;
 
 /**
@@ -139,12 +140,17 @@ class BackupCreate
      */
     private function createFileName()
     {
-        $extension = Backup::EXT_TGZ;
-        if ($this->model->type == BackupType::FILES)
-            $extension = Backup::EXT_ZIP;
+        $extension = Backup::EXT_ZIP;
+        if ($this->model->type == BackupType::DB) {
+            $extension = Backup::EXT_TGZ;
+            /** @var Connection $connection */
+            $connection = Yii::$app->{$this->currentConfig['connection']};
+            if ($connection->driverName == 'pgsql')
+                $extension = Backup::EXT_DUMP;
+        }
         $date = date("Y-m-d_H-i-s");
         $rand = substr(md5(rand(0, 9999)), 0, 3);
-        return "{$this->config_id}_{$date}_{$rand}{$extension}";
+        return "{$this->config_id}_{$date}_{$rand}.{$extension}";
     }
 
     /**

@@ -19,7 +19,31 @@ backup = {
             }
         })
     },
+    openFileSelector: function (config_id) {
+        $('#backup-import-config_id').val(config_id);
+        $('#backup-import-file-selector').click();
+    },
+    importBackup: function () {
+        form = $('#backup-import-form');
+        data = new FormData(document.getElementById('backup-import-form'));
+        $.ajax({
+            url: '/backup/admin/import',
+            method: 'post',
+            enctype: 'multipart/form-data',
+            processData: false,
+            contentType: false,
+            data: data,
+            success: function (response) {
+                f12notification.success(importSuccessText);
+                backup.reloadGrid();
+                $('#backup-import-file-selector').val('');
+            },
+            error: function (response) {
+                processError(response);
+            }
+        });
 
+    },
     restore: function (id) {
         if (confirm(restoreConfirmText))
             $.ajax({
