@@ -58,13 +58,13 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                 'mysql_db' => [
                     'type' => BackupType::DB,
                     'title' => 'Mysql Database',
-                    'connection' => 'db',
+                    'connection' => 'mysql',
                     'limit' => 0
                 ],
                 'postgres_db' => [
                     'type' => BackupType::DB,
                     'title' => 'PostgresQL database',
-                    'connection' => 'db2',
+                    'connection' => 'postgres',
                     'io' => IOPriority::REALTIME,
                     'limit' => 0
                 ],
