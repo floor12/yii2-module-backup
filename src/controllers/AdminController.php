@@ -100,10 +100,6 @@ class AdminController extends Controller
     public function actionBackup()
     {
         $config_id = Yii::$app->request->post('config_id');
-
-        if (!Yii::$app->getModule('backup')->checkConfig($config_id))
-            throw new NotFoundHttpException(Yii::t('app.f12.backup', 'Backup config is not found.'));
-
         Yii::createObject(BackupCreate::class, [$config_id])->run();
     }
 
