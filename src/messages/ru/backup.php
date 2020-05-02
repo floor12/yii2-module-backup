@@ -19,6 +19,8 @@ return [
     'In process' => 'Запущен',
     'Done' => 'Готов',
     'Error' => 'Ошибка',
+    'Imported' => 'Импортирован',
+    'Import error' => 'Ошибка импорта',
     'Delete' => 'Удалить',
     'Download' => 'Скачать',
     'Backup was successful restored.' => 'Бекап успешно восстановлен.',

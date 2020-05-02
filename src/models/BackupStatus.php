@@ -16,6 +16,8 @@ class BackupStatus extends BaseEnum
     const IN_PROCESS = 0;
     const DONE = 1;
     const ERROR = 2;
+    const IMPORTED = 3;
+    const IMPORT_ERROR = 4;
     /**
      * @var string
      */
@@ -27,6 +29,8 @@ class BackupStatus extends BaseEnum
         self::IN_PROCESS => 'In process',
         self::DONE => 'Done',
         self::ERROR => 'Error',
+        self::IMPORTED => 'Imported',
+        self::IMPORT_ERROR => 'Import error',
     ];
 
 }
