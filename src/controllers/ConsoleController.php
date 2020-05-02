@@ -90,8 +90,8 @@ class ConsoleController extends Controller
     {
         $importer = new BackupImporter($config_id, $absoluteFilePath);
         if ($importer->import())
-            $this->stdout("Backup imported: {$absoluteFilePath}", Console::FG_GREEN);
+            $this->stdout("Backup imported: {$absoluteFilePath}\n", Console::FG_GREEN);
         else
-            $this->stdout("Something goes wrong.", Console::FG_RED);
+            $this->stdout("Something went wrong.\n", Console::FG_RED);
     }
 }
