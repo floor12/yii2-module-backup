@@ -4,6 +4,7 @@
 namespace floor12\backup\logic\processors;
 
 
+use floor12\backup\Exceptions\BinaryNotFoundException;
 use floor12\backup\Exceptions\DsnParseException;
 use floor12\backup\models\IOPriority;
 use floor12\backup\Module;
@@ -71,6 +72,11 @@ abstract class  DbProcessor
         $this->database = $this->parsedDsn['dbname'] ?: null;
     }
 
+    protected function checkBinary(string $binary)
+    {
+        if (!file_exists($binary) || !is_executable($binary))
+            throw new BinaryNotFoundException($binary);
+    }
 
     public function backup()
     {

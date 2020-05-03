@@ -55,6 +55,7 @@ class AdminController extends Controller
                     'delete' => ['delete'],
                     'backup' => ['post'],
                     'restore' => ['post'],
+                    'import' => ['post'],
                 ],
             ],
         ];
@@ -135,8 +136,9 @@ class AdminController extends Controller
         $model = new ImportForm();
         $model->load(Yii::$app->request->post());
         $model->file = UploadedFile::getInstance($model, 'file');
-        if (!$model->import())
-            throw new BadRequestHttpException(print_r($model->errors, true));
+        if (!$model->import()) {
+            throw new BadRequestHttpException($model->getFirstError('file'));
+        }
     }
 
     /**

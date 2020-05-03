@@ -10,7 +10,10 @@ namespace floor12\backup\logic;
 
 use ErrorException;
 use floor12\backup\Exceptions\ConfigurationNotFoundException;
+use floor12\backup\Exceptions\FolderDumpException;
 use floor12\backup\Exceptions\ModuleNotConfiguredException;
+use floor12\backup\Exceptions\MysqlDumpException;
+use floor12\backup\Exceptions\PostgresDumpException;
 use floor12\backup\models\Backup;
 use floor12\backup\models\BackupStatus;
 use floor12\backup\models\BackupType;
@@ -86,18 +89,22 @@ class BackupCreate
 
         if (empty($this->currentConfig['io']))
             $this->currentConfig['io'] = IOPriority::IDLE;
+        try {
+            if ($this->currentConfig['type'] == BackupType::DB) {
+                $connection = Yii::$app->{$this->currentConfig['connection']};
+                Yii::createObject(DatabaseBackuper::class, [$this->model->getFullPath(), $connection, $this->currentConfig['io']])->backup();
+            }
 
-        if ($this->currentConfig['type'] == BackupType::DB) {
-            $connection = Yii::$app->{$this->currentConfig['connection']};
-            Yii::createObject(DatabaseBackuper::class, [$this->model->getFullPath(), $connection, $this->currentConfig['io']])->backup();
+            if ($this->currentConfig['type'] == BackupType::FILES) {
+                $targetPath = Yii::getAlias($this->currentConfig['path']);
+                Yii::createObject(FolderBackupMaker::class, [$this->model->getFullPath(), $targetPath, $this->currentConfig['io']])->execute();
+            }
+        } catch (MysqlDumpException|PostgresDumpException|FolderDumpException $exception) {
+            $this->setBackupFailed();
+            throw new $exception;
         }
 
-        if ($this->currentConfig['type'] == BackupType::FILES) {
-            $targetPath = Yii::getAlias($this->currentConfig['path']);
-            Yii::createObject(FolderBackupMaker::class, [$this->model->getFullPath(), $targetPath, $this->currentConfig['io']])->execute();
-        }
-
-        $this->updateBackupInfo();
+        $this->setBackupDone();
     }
 
     /**
@@ -156,10 +163,20 @@ class BackupCreate
     /**
      * @return bool
      */
-    protected function updateBackupInfo()
+    protected function setBackupDone()
     {
         $this->model->status = BackupStatus::DONE;
         $this->model->updateFileSize();
+        return $this->model->save();
+    }
+
+    /**
+     * @return bool
+     */
+    protected function setBackupFailed()
+    {
+        $this->model->status = BackupStatus::ERROR;
+        @unlink($this->model->getFullPath());
         return $this->model->save();
     }
 

@@ -29,7 +29,7 @@ class Backup extends ActiveRecord
 {
 
     const EXT_DUMP = 'dump';
-    const EXT_TGZ = 'sql.tgz';
+    const EXT_TGZ = 'gz';
     const EXT_ZIP = 'zip';
 
     public static function getDb()
