@@ -68,7 +68,7 @@ abstract class  DbProcessor
         }
 
         $this->host = $this->parsedDsn['host'] ?: null;
-        $this->port = $this->parsedDsn['port'] ?: null;
+        $this->port = !empty($this->parsedDsn['port']) ? $this->parsedDsn['port'] : null;
         $this->database = $this->parsedDsn['dbname'] ?: null;
     }
 
