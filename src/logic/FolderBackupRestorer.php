@@ -48,7 +48,6 @@ class FolderBackupRestorer
         $unzipPath = $this->module->binaries['unzip'];
         $command = "cd {$this->targetFolder} && {$ionicePath} -c{$this->io} {$unzipPath} -o {$this->backupFilePath}";
         exec($command, $r);
-        var_dump($r);
         return true;
     }
 }

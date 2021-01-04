@@ -20,10 +20,14 @@ use floor12\backup\models\BackupStatus;
 use floor12\backup\models\BackupType;
 use floor12\backup\tests\TestCase;
 use Yii;
+use yii\base\InvalidConfigException;
 
 class BackupRestoreTest extends TestCase
 {
-
+    /**
+     * @throws ErrorException
+     * @throws InvalidConfigException
+     */
     public function testEmptyConfigs()
     {
         $backup = new Backup([
@@ -34,9 +38,13 @@ class BackupRestoreTest extends TestCase
         ]);
         $this->expectException(ModuleNotConfiguredException::class);
         $this->module->configs = [];
-        $restorer = new BackupRestore($backup);
+        new BackupRestore($backup);
     }
 
+    /**
+     * @throws ErrorException
+     * @throws InvalidConfigException
+     */
     public function testWrongConfigName()
     {
         $config_id = 'wrong_config_id';
@@ -47,10 +55,13 @@ class BackupRestoreTest extends TestCase
             'config_id' => $config_id
         ]);
         $this->expectException(ErrorException::class);
-//        $this->expectExceptionMessage("Config `{$config_id}` not found.");
-        $restorer = new BackupRestore($backup);
+        new BackupRestore($backup);
     }
 
+    /**
+     * @throws ErrorException
+     * @throws InvalidConfigException
+     */
     public function testDatabaseSuccess()
     {
         $this->module->backupFolder = '@vendor/../tests/data';
@@ -64,10 +75,20 @@ class BackupRestoreTest extends TestCase
         ]);
         $restorer = new BackupRestore($backup);
         $restorer->run();
+        $tableExists = Yii::$app->postgres->createCommand("SELECT EXISTS (
+               SELECT FROM information_schema.tables
+               WHERE  table_schema = 'public'
+                 AND    table_name   = 'test_table'
+           );")->queryScalar() == 'true';
+        $this->assertTrue($tableExists);
         $dropResult = Yii::$app->postgres->createCommand()->dropTable('test_table')->execute();
         $this->assertEquals(0, $dropResult);
     }
 
+    /**
+     * @throws ErrorException
+     * @throws InvalidConfigException
+     */
     public function testFolderSuccess()
     {
         $this->module->backupFolder = '@vendor/../tests/data';
