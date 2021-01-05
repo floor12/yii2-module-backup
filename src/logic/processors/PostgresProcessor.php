@@ -6,10 +6,14 @@ namespace floor12\backup\logic\processors;
 
 use floor12\backup\Exceptions\PostgresDumpException;
 
-class PostgresProcessor extends DbProcessor
+class PostgresProcessor
+    extends DbProcessor
+    implements DbProcessorInterface
 {
 
-    public function backup()
+    public $port = 5432;
+
+    public function backup(): void
     {
         $binaryPath = $this->module->binaries['pg_dump'];
         $ionicePath = $this->module->binaries['ionice'];
@@ -19,7 +23,7 @@ class PostgresProcessor extends DbProcessor
             throw new PostgresDumpException();
     }
 
-    public function restore()
+    public function restore(array $tableNames = []): void
     {
         $binaryPath = $this->module->binaries['pg_restore'];
         $command = "PGPASSWORD='{$this->password}' {$binaryPath} -c -Fc -j 4 -h {$this->host} -p {$this->port} -U {$this->username}  -d {$this->database} {$this->backupFilePath}";

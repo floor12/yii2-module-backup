@@ -10,12 +10,9 @@ use floor12\backup\Exceptions\PostgresDumpException;
 class MysqlProcessor extends DbProcessor
 {
 
-    public function init()
-    {
-        $this->port = $this->port ?: 3306;
-    }
+    public $port = 3306;
 
-    public function backup()
+    public function backup(): void
     {
         $mysqldumpPath = $this->module->binaries['mysqldump'];
         $gzipPath = $this->module->binaries['gzip'];
@@ -29,7 +26,7 @@ class MysqlProcessor extends DbProcessor
             throw new MysqlDumpException();
     }
 
-    public function restore()
+    public function restore(array $tableNames = []): void
     {
         $mysqlPath = $this->module->binaries['mysql'];
         $zcatPath = $this->module->binaries['zcat'];

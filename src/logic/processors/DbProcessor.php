@@ -11,29 +11,27 @@ use floor12\backup\Module;
 use Yii;
 use yii\db\Connection;
 
-abstract class  DbProcessor
+abstract class  DbProcessor implements DbProcessorInterface
 {
-    /**
-     * @var Connection
-     */
+    /**@var Connection */
     protected $connection;
-    /**
-     * @var array
-     */
+    /**@var array */
     protected $parsedDsn;
-    /**
-     * @var string
-     */
+    /**@var string */
     protected $backupFilePath;
-    /**
-     * @var Module
-     */
+    /**@var Module */
     protected $module;
+    /**@var string */
     protected $username;
+    /**@var string */
     protected $database;
+    /**@var string */
     protected $host;
+    /** @var int */
     protected $port;
+    /**@var string */
     protected $io;
+    /**@var string */
     protected $password;
 
 
@@ -41,6 +39,7 @@ abstract class  DbProcessor
      * DbProcessor constructor.
      * @param string $backupFilePath
      * @param Connection $connection
+     * @throws DsnParseException
      */
     public function __construct(string $backupFilePath, Connection $connection, $io = IOPriority::IDLE)
     {
@@ -50,10 +49,9 @@ abstract class  DbProcessor
         $this->password = $connection->password;
         $this->module = Yii::$app->getModule('backup');
         $this->io = $io;
-        $this->init();
     }
 
-    protected function parseDsn(string $dsn)
+    protected function parseDsn(string $dsn): void
     {
         $dsn = substr($dsn, strpos($dsn, ':') + 1);
         $dsnParts = explode(';', $dsn);
@@ -68,28 +66,37 @@ abstract class  DbProcessor
         }
 
         $this->host = $this->parsedDsn['host'] ?: null;
-        $this->port = !empty($this->parsedDsn['port']) ? $this->parsedDsn['port'] : null;
+        if (!empty($this->parsedDsn['port'])) {
+            $this->port = $this->parsedDsn['port'];
+        }
         $this->database = $this->parsedDsn['dbname'] ?: null;
     }
 
-    protected function checkBinary(string $binary)
+    public function setPort(int $port): void
     {
-        if (!file_exists($binary) || !is_executable($binary))
+        $this->port = $port;
+    }
+
+    protected function checkBinary(string $binary): void
+    {
+        if (!file_exists($binary) || !is_executable($binary)) {
             throw new BinaryNotFoundException($binary);
+        }
     }
 
-    public function backup()
+    public function backup(): void
     {
 
     }
 
-    public function restore()
+    public function restore(array $tableNames = []): void
     {
 
     }
 
-    public function init()
+    public function getTables(): array
     {
-
+        return [];
     }
+
 }
