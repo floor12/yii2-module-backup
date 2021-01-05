@@ -6,7 +6,7 @@
  * Time: 07:45
  */
 
-namespace floor12\backup\tests\unit;
+namespace floor12\backup\tests\unit\logic;
 
 /**
  * This is a tests for Backup class
@@ -23,14 +23,14 @@ class FolderBackupMakerTest extends TestCase
     {
         $this->expectException(Exception::class);
         $backupFilePath = Yii::getAlias('@app/data/sqlite.db');
-        $creator = new FolderBackupMaker($backupFilePath, 'tmp');
+        new FolderBackupMaker($backupFilePath, 'tmp');
     }
 
     public function testCreateBackupTargetNotExists()
     {
         $this->expectException(Exception::class);
         $backupFilePath = Yii::getAlias('@app/data/backup.tgz');
-        $creator = new FolderBackupMaker($backupFilePath, 'not-exists');
+        new FolderBackupMaker($backupFilePath, 'not-exists');
     }
 
 

@@ -6,7 +6,7 @@
  * Time: 07:45
  */
 
-namespace floor12\backup\tests\unit;
+namespace floor12\backup\tests\unit\logic;
 
 /**
  * This is a tests for Backup class
@@ -27,16 +27,15 @@ class BackupCreateTest extends TestCase
     {
         $this->expectException(ModuleNotConfiguredException::class);
         $this->module->configs = [];
-//        $this->expectExceptionMessage('Backup module need to be configured with `config array`');
-        $backupFilePath = Yii::getAlias('@app/tmp/sqlite.db');
-        $creator = new BackupCreate('main');
+         Yii::getAlias('@app/tmp/sqlite.db');
+        new BackupCreate('main');
     }
 
     public function testWrongConfigName()
     {
         $this->expectException(ConfigurationNotFoundException::class);
         $config_id = 'wrong';
-        $creator = new BackupCreate($config_id);
+        new BackupCreate($config_id);
     }
 
     public function testDatabaseSuccess()

@@ -6,7 +6,7 @@
  * Time: 07:45
  */
 
-namespace floor12\backup\tests\unit;
+namespace floor12\backup\tests\unit\logic;
 
 use floor12\backup\Exceptions\ConfigurationNotFoundException;
 use floor12\backup\Exceptions\ModuleNotConfiguredException;
@@ -25,7 +25,7 @@ class BackupImporterTest extends TestCase
         $this->module->configs = [];
         $config_id = 'test_file_backup';
         $fileToImport = Yii::getAlias('@app/data/postgres_for_import');
-        $importer = new BackupImporter($config_id, $fileToImport);
+        new BackupImporter($config_id, $fileToImport);
     }
 
     public function testWrongConfigName()
@@ -33,7 +33,7 @@ class BackupImporterTest extends TestCase
         $this->expectException(ConfigurationNotFoundException::class);
         $fileToImport = Yii::getAlias('@app/data/postgres_for_import');
         $config_id = 'config_not_exists';
-        $importer = new BackupImporter($config_id, $fileToImport);
+         new BackupImporter($config_id, $fileToImport);
     }
 
     public function testImportSuccess()

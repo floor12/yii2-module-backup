@@ -116,4 +116,14 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     {
         Yii::$app = null;
     }
+
+
+    public function isPostgresTableExists($tableName): bool
+    {
+        return Yii::$app->postgres->createCommand("SELECT EXISTS (
+               SELECT FROM information_schema.tables
+               WHERE  table_schema = 'public'
+                 AND    table_name   = '{$tableName}'
+           );")->queryScalar() == 'true';
+    }
 }

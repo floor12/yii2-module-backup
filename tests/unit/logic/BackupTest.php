@@ -6,7 +6,7 @@
  * Time: 07:45
  */
 
-namespace floor12\backup\tests\unit;
+namespace floor12\backup\tests\unit\logic;
 
 /**
  * This is a tests for Backup class

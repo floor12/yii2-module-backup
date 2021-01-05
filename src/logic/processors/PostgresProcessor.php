@@ -32,8 +32,13 @@ class PostgresProcessor
             throw new PostgresDumpException();
     }
 
-    public function init()
+    public function getTables(): array
     {
-        $this->port = $this->port ?: 5432;
+//        $binaryPath = $this->module->binaries['pg_restore'];
+//        $command = "PGPASSWORD='{$this->password}' {$binaryPath} -l {$this->backupFilePath}| grep TABLE";
+//        exec($command, $return);
+//        if (!empty($return))
+//            throw new PostgresDumpException();
+        return [];
     }
 }
