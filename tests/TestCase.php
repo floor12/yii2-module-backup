@@ -30,6 +30,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     {
         $this->mockApplication();
         $this->setApp();
+        $this->cleanBases();
         parent::setUp();
     }
 
@@ -125,5 +126,11 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                WHERE  table_schema = 'public'
                  AND    table_name   = '{$tableName}'
            );")->queryScalar() == 'true';
+    }
+
+    private function cleanBases()
+    {
+        Yii::$app->postgres->createCommand("DROP TABLE IF EXISTS test_table_1")->execute();
+        Yii::$app->postgres->createCommand("DROP TABLE IF EXISTS test_table_2")->execute();
     }
 }

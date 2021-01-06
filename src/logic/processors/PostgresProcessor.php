@@ -26,7 +26,13 @@ class PostgresProcessor
     public function restore(array $tableNames = []): void
     {
         $binaryPath = $this->module->binaries['pg_restore'];
-        $command = "PGPASSWORD='{$this->password}' {$binaryPath} -c -Fc -j 4 -h {$this->host} -p {$this->port} -U {$this->username}  -d {$this->database} {$this->backupFilePath}";
+        if (empty($tableNames)) {
+            $command = "PGPASSWORD='{$this->password}' {$binaryPath} -c -Fc -j 4 -h {$this->host} -p {$this->port} -U {$this->username}  -d {$this->database} {$this->backupFilePath}";
+        } else {
+            foreach ($tableNames as $tableName) {
+                $command = "PGPASSWORD='{$this->password}' {$binaryPath} -c -t {$tableName} -Fc -j 4 -h {$this->host} -p {$this->port} -U {$this->username}  -d {$this->database} {$this->backupFilePath}";
+            }
+        }
         exec($command, $return);
         if (!empty($return))
             throw new PostgresDumpException();
@@ -34,12 +40,18 @@ class PostgresProcessor
 
     public function getTables(): array
     {
-//        $binaryPath = $this->module->binaries['pg_restore'];
-//        $command = "PGPASSWORD='{$this->password}' {$binaryPath} -l {$this->backupFilePath}| grep TABLE";
-//        exec($command, $return);
-//        if (!empty($return))
-//            throw new PostgresDumpException();
-        return [];
+        $binaryPath = $this->module->binaries['pg_restore'];
+        $command = "PGPASSWORD='{$this->password}' {$binaryPath} -l {$this->backupFilePath}| grep TABLE";
+        exec($command, $dumpContentLines);
+        if (empty($dumpContentLines))
+            throw new PostgresDumpException('Empty output received from `pg_restore -l` command.');
+        $tables = [];
+        foreach ($dumpContentLines as $dumpContentLine) {
+            if (preg_match('/TABLE public (\w+) /', $dumpContentLine, $result)) {
+                $tables[] = $result[1];
+            }
+        }
+        return $tables;
     }
 
 
