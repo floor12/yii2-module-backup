@@ -32,12 +32,12 @@ class PostgresProcessorTest extends TestCase
 
     public function testRestore()
     {
-        $this->assertFalse($this->isPostgresTableExists('test_table'));
-        $backupFilePath = Yii::getAlias('@app/data/postgres_for_import');
+        $this->assertFalse($this->isPostgresTableExists('test_table_1'));
+        $backupFilePath = Yii::getAlias('@app/data/postgres_for_import.dump');
         $processor = new PostgresProcessor($backupFilePath, Yii::$app->postgres);
         $processor->restore();
-        $this->assertTrue($this->isPostgresTableExists('test_table'));
-        $dropResult = Yii::$app->postgres->createCommand()->dropTable('test_table')->execute();
+        $this->assertTrue($this->isPostgresTableExists('test_table_1'));
+        $dropResult = Yii::$app->postgres->createCommand()->dropTable('test_table_1')->execute();
         $this->assertEquals(0, $dropResult);
     }
 

@@ -24,14 +24,14 @@ class BackupImporterTest extends TestCase
         $this->expectException(ModuleNotConfiguredException::class);
         $this->module->configs = [];
         $config_id = 'test_file_backup';
-        $fileToImport = Yii::getAlias('@app/data/postgres_for_import');
+        $fileToImport = Yii::getAlias('@app/data/postgres_for_import.dump');
         new BackupImporter($config_id, $fileToImport);
     }
 
     public function testWrongConfigName()
     {
         $this->expectException(ConfigurationNotFoundException::class);
-        $fileToImport = Yii::getAlias('@app/data/postgres_for_import');
+        $fileToImport = Yii::getAlias('@app/data/postgres_for_import.dump');
         $config_id = 'config_not_exists';
          new BackupImporter($config_id, $fileToImport);
     }
@@ -40,7 +40,7 @@ class BackupImporterTest extends TestCase
     {
         Backup::deleteAll();
         $config_id = 'postgres_db';
-        $fileName = 'postgres_for_import';
+        $fileName = 'postgres_for_import.dump';
         $fileToImport = Yii::getAlias("@app/data/{$fileName}");
         $importer = new BackupImporter($config_id, $fileToImport);
         $this->assertTrue($importer->import());
