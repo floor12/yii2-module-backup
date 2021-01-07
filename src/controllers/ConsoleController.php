@@ -13,6 +13,7 @@ use floor12\backup\Exceptions\ConfigurationNotFoundException;
 use floor12\backup\Exceptions\FileNotFoundException;
 use floor12\backup\Exceptions\ModuleNotConfiguredException;
 use floor12\backup\logic\BackupCreate;
+use floor12\backup\logic\BackupDetails;
 use floor12\backup\logic\BackupImporter;
 use floor12\backup\logic\BackupRestore;
 use floor12\backup\models\Backup;
@@ -49,14 +50,37 @@ class ConsoleController extends Controller
      * @throws ErrorException
      * @throws InvalidConfigException
      */
-    public function actionRestore(string $backup_id)
+    public function actionRestore(string $backup_id, array $backupParams = [])
     {
         $model = Backup::findOne((int)$backup_id);
         if (!$model)
             throw new ErrorException('Backup not found.');
 
-        Yii::createObject(BackupRestore::class, [$model])->run();
+        Yii::createObject(BackupRestore::class, [$model, $backupParams])->run();
         $this->stdout('Backup restored.' . PHP_EOL, Console::FG_GREEN);
+    }
+
+    /**
+     * Pass existing backup ID to this command to restore from backup.
+     *
+     * @param string $backup_id
+     * @throws ErrorException
+     * @throws InvalidConfigException
+     */
+    public function actionDetails(string $backup_id)
+    {
+        $model = Backup::findOne((int)$backup_id);
+        if (!$model)
+            throw new ErrorException('Backup not found.');
+
+        if ($details = Yii::createObject(BackupDetails::class, [$model])->getDetails()) {
+            $this->stdout('Backup details:' . PHP_EOL, Console::FG_YELLOW);
+            foreach ($details as $detail) {
+                $this->stdout("- $detail" . PHP_EOL, Console::FG_CYAN);
+            }
+        } else {
+            $this->stdout('Backup has no details.' . PHP_EOL, Console::FG_GREEN);
+        }
     }
 
     /**
@@ -76,7 +100,7 @@ class ConsoleController extends Controller
             $this->stdout("{$model->id}: " . Yii::$app->formatter->asDatetime($model->date) . "\t\t{$model->config_id}\t\t" .
                 BackupType::$list[$model->type] .
                 PHP_EOL,
-                $model->status ? Console::FG_GREEN : Console::FG_RED);
+                $model->status ? Console::FG_CYAN : Console::FG_RED);
     }
 
     /**

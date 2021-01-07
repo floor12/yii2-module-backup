@@ -30,7 +30,7 @@ class PostgresProcessor
             $command = "PGPASSWORD='{$this->password}' {$binaryPath} -c -Fc -j 4 -h {$this->host} -p {$this->port} -U {$this->username}  -d {$this->database} {$this->backupFilePath}";
         } else {
             foreach ($tableNames as $tableName) {
-                $command = "PGPASSWORD='{$this->password}' {$binaryPath} -c -t {$tableName} -Fc -j 4 -h {$this->host} -p {$this->port} -U {$this->username}  -d {$this->database} {$this->backupFilePath}";
+                $command = "PGPASSWORD='{$this->password}' {$binaryPath} -t {$tableName} -Fc -h {$this->host} -p {$this->port} -U {$this->username}  -d {$this->database} {$this->backupFilePath}";
             }
         }
         exec($command, $return);

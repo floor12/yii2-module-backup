@@ -56,8 +56,8 @@ class DatabaseBackuper
      * @return bool
      * @throws \Exception
      */
-    public function restore()
+    public function restore(array $tableNames)
     {
-        $this->dbProcessor->restore();
+        $this->dbProcessor->restore($tableNames);
     }
 }

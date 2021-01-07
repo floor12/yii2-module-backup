@@ -25,6 +25,8 @@ class BackupRestore
     private $configs = [];
     /** @var array */
     private $currentConfig = [];
+    /** @var array */
+    private $params = [];
     /** @var string */
     private $config_id;
     /** @var Backup */
@@ -38,10 +40,11 @@ class BackupRestore
      * @throws InvalidConfigException
      * @throws ErrorException
      */
-    public function __construct(Backup $model)
+    public function __construct(Backup $model, array $params = [])
     {
         $this->config_id = $model->config_id;
         $this->model = $model;
+        $this->params = $params;
         $this->loadConfigs();
         $this->setUpActiveConfig();
     }
@@ -82,7 +85,7 @@ class BackupRestore
         if ($this->currentConfig['type'] == BackupType::DB) {
             $this->connection = Yii::$app->{$this->currentConfig['connection']};
             return Yii::createObject(DatabaseBackuper::class, [$this->model->getFullPath(), $this->connection, $this->currentConfig['io']])
-                ->restore();
+                ->restore($this->params);
         }
 
         if ($this->currentConfig['type'] == BackupType::FILES) {
