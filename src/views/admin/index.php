@@ -39,7 +39,7 @@ $this->registerJs("importSuccessText='{$importSuccessText}'", View::POS_READY, '
 
 ?>
 
-<div class="pull-right">
+<div class="pull-right" style="display: flex">
 
     <div class="btn-group">
         <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown"
@@ -160,5 +160,6 @@ Pjax::end();
 
 <form id="backup-import-form" style="display:none;">
     <input id="backup-import-config_id" type="text" name="ImportForm[config_id]" maxlength="255">
-    <input id="backup-import-file-selector" onchange="backup.importBackup()" type="file" name="ImportForm[file]" max="1">
+    <input id="backup-import-file-selector" onchange="backup.importBackup()" type="file" name="ImportForm[file]"
+           max="1">
 </form>
