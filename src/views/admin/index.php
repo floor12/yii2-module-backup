@@ -38,44 +38,42 @@ $this->registerJs("deleteSuccessText='{$deleteSuccessText}'", View::POS_READY, '
 $this->registerJs("importSuccessText='{$importSuccessText}'", View::POS_READY, 'importSuccessText');
 
 ?>
+<div class="pull-right" style="display: flex;">
+    <div class="btn-group">
+        <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown"
+                aria-expanded="false">
+            <?= IconHelper::PLUS ?>
+            <?= Yii::t('app.f12.backup', 'Run backup') ?> <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" role="menu">
+            <?php foreach ($configs as $config_id => $config) { ?>
+                <li>
+                    <a role="button" onclick="backup.create('<?= $config_id ?>')">
+                        <?= $config['type'] == BackupType::DB ? IconHelper::DATABASE : IconHelper::FILE ?>
+                        <?= $config['title'] ?>
+                    </a>
+                </li>
+            <?php } ?>
+        </ul>
+    </div>
 
-<div class="pull-right"">
-
-<div class="btn-group">
-    <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown"
-            aria-expanded="false">
-        <?= IconHelper::PLUS ?>
-        <?= Yii::t('app.f12.backup', 'Run backup') ?> <span class="caret"></span>
-    </button>
-    <ul class="dropdown-menu" role="menu">
-        <?php foreach ($configs as $config_id => $config) { ?>
-            <li>
-                <a role="button" onclick="backup.create('<?= $config_id ?>')">
-                    <?= $config['type'] == BackupType::DB ? IconHelper::DATABASE : IconHelper::FILE ?>
-                    <?= $config['title'] ?>
-                </a>
-            </li>
-        <?php } ?>
-    </ul>
-</div>
-
-<div class="btn-group">
-    <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown"
-            aria-expanded="false">
-        <?= IconHelper::PLUS ?>
-        <?= Yii::t('app.f12.backup', 'Import backup') ?> <span class="caret"></span>
-    </button>
-    <ul class="dropdown-menu" role="menu">
-        <?php foreach ($configs as $config_id => $config) { ?>
-            <li>
-                <a role="button" onclick="backup.openFileSelector('<?= $config_id ?>')">
-                    <?= $config['type'] == BackupType::DB ? IconHelper::DATABASE : IconHelper::FILE ?>
-                    <?= $config['title'] ?>
-                </a>
-            </li>
-        <?php } ?>
-    </ul>
-</div>
+    <div class="btn-group">
+        <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown"
+                aria-expanded="false">
+            <?= IconHelper::PLUS ?>
+            <?= Yii::t('app.f12.backup', 'Import backup') ?> <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" role="menu">
+            <?php foreach ($configs as $config_id => $config) { ?>
+                <li>
+                    <a role="button" onclick="backup.openFileSelector('<?= $config_id ?>')">
+                        <?= $config['type'] == BackupType::DB ? IconHelper::DATABASE : IconHelper::FILE ?>
+                        <?= $config['title'] ?>
+                    </a>
+                </li>
+            <?php } ?>
+        </ul>
+    </div>
 </div>
 
 
