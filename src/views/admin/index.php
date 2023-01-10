@@ -38,7 +38,7 @@ $this->registerJs("deleteSuccessText='{$deleteSuccessText}'", View::POS_READY, '
 $this->registerJs("importSuccessText='{$importSuccessText}'", View::POS_READY, 'importSuccessText');
 
 ?>
-<div class="pull-right" style="display: flex;">
+<div class="pull-right">
     <div class="btn-group">
         <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown"
                 aria-expanded="false">
