@@ -7,7 +7,7 @@ backup = {
 
     create: function (config_id) {
         $.ajax({
-            url: '/backup/admin/backup',
+            url: 'backup',
             method: 'POST',
             data: {config_id: config_id},
             error: function (response) {
@@ -45,7 +45,7 @@ backup = {
                 }, false);
                 return xhr;
             },
-            url: '/backup/admin/import',
+            url: 'import',
             method: 'post',
             enctype: 'multipart/form-data',
             processData: false,
@@ -73,7 +73,7 @@ backup = {
     restore: function (id) {
         if (confirm(restoreConfirmText))
             $.ajax({
-                url: '/backup/admin/restore',
+                url: 'restore',
                 method: 'POST',
                 data: {id: id},
                 error: function (response) {
@@ -89,7 +89,7 @@ backup = {
     delete: function (id) {
         if (confirm(restoreConfirmText))
             $.ajax({
-                url: '/backup/admin/delete',
+                url: 'delete',
                 method: 'DELETE',
                 data: {id: id},
                 error: function (response) {
