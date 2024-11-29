@@ -3,6 +3,7 @@
 namespace floor12\backup\logic;
 
 use floor12\backup\models\IOPriority;
+use floor12\backup\Module;
 use Yii;
 use yii\base\Exception;
 
@@ -16,7 +17,10 @@ class FolderBackupRestorer
      * @var string
      */
     protected $targetFolder;
-
+    /**
+     * @var Module
+     */
+    protected $module;
     /**
      * DatabaseBackupMaker constructor.
      * @param string $backupFilePath
