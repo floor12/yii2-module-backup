@@ -22,6 +22,11 @@ class FolderBackupRestorer
      */
     protected $module;
     /**
+     * @var string
+     */
+    protected $io;
+
+    /**
      * DatabaseBackupMaker constructor.
      * @param string $backupFilePath
      * @param string $targetFolder
